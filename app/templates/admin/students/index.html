@@ -1,0 +1,78 @@
+{% extends "admin/dashboard.html" %}
+
+{% block title %}Students — Admin{% endblock %}
+
+{% block content %}
+<div class="dashboard-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2><i class="bi bi-people me-2"></i> Students</h2>
+        <p class="text-muted">Manage student records</p>
+    </div>
+    <a href="{{ url_for('admin_students.add') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i> Add Student
+    </a>
+</div>
+
+<div class="card bg-card border-0">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Reg No</th>
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th>Year</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>
+                            <span class="badge bg-secondary font-monospace">{{ student.registration_no }}</span>
+                            <button type="button" class="btn-copy ms-1" data-copy="{{ student.registration_no }}" title="Copy registration number" aria-label="Copy registration number">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                        </td>
+                        <td>
+                            {{ student.name }}<br>
+                            <small class="text-muted">{{ student.email }}</small>
+                        </td>
+                        <td>{{ student.department_code }} ({{ student.section }})</td>
+                        <td>{{ student.year }}</td>
+                        <td>
+                            {% if student.is_active %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a href="{{ url_for('admin_students.edit', student_id=student.student_id) }}" class="btn btn-sm btn-outline-light me-1" title="Edit Student">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form action="{{ url_for('admin_students.toggle_status', user_id=student.user_id) }}" method="POST" class="d-inline">
+                                <input type="hidden" name="is_active" value="{{ '1' if student.is_active else '0' }}">
+                                <button type="button" class="btn btn-sm btn-outline-{{ 'danger' if student.is_active else 'success' }}"
+                                        title="{{ 'Deactivate' if student.is_active else 'Activate' }}"
+                                        data-confirm="Are you sure you want to {{ 'deactivate' if student.is_active else 'activate' }} the account for student '{{ student.name }}' ({{ student.registration_no }})?"
+                                        data-confirm-title="{{ 'Deactivate' if student.is_active else 'Activate' }} Student"
+                                        data-confirm-btn="{{ 'Deactivate' if student.is_active else 'Activate' }}">
+                                    <i class="bi bi-power"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">No students found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

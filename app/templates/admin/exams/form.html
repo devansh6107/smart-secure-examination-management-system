@@ -1,0 +1,122 @@
+{% extends "admin/dashboard.html" %}
+
+{% block title %}{{ 'Edit' if exam else 'Schedule' }} Exam — Admin{% endblock %}
+
+{% block content %}
+<div class="dashboard-header mb-4">
+    <a href="{{ url_for('admin_exams.index') }}" class="btn btn-sm btn-outline-secondary mb-3">
+        <i class="bi bi-arrow-left"></i> Back to Exams
+    </a>
+    <h2><i class="bi bi-calendar-event me-2"></i> {{ 'Edit' if exam else 'Schedule' }} Exam</h2>
+</div>
+
+<div class="card bg-card border-0 max-w-800">
+    <div class="card-body p-4">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="subject_id" class="form-label text-muted">Subject <span class="text-danger">*</span></label>
+                    <select class="form-select bg-dark text-light border-secondary" id="subject_id" name="subject_id" required>
+                        <option value="">Select Subject</option>
+                        {% for subject in subjects %}
+                        <option value="{{ subject.subject_id }}" {% if (form_data and form_data.subject_id|string == subject.subject_id|string) or (exam and exam.subject_id == subject.subject_id) %}selected{% endif %}>
+                            {{ subject.subject_code }} - {{ subject.subject_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="exam_type" class="form-label text-muted">Exam Type <span class="text-danger">*</span></label>
+                    <select class="form-select bg-dark text-light border-secondary" id="exam_type" name="exam_type" required>
+                        <option value="">Select Type</option>
+                        {% set cur_type = form_data.exam_type if form_data else (exam.exam_type if exam else '') %}
+                        <option value="CAT1" {% if cur_type == 'CAT1' %}selected{% endif %}>CAT1</option>
+                        <option value="CAT2" {% if cur_type == 'CAT2' %}selected{% endif %}>CAT2</option>
+                        <option value="FAT" {% if cur_type == 'FAT' %}selected{% endif %}>FAT</option>
+                        <option value="LAB" {% if cur_type == 'LAB' %}selected{% endif %}>LAB</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="exam_date" class="form-label text-muted">Date <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control bg-dark text-light border-secondary" id="exam_date" name="exam_date" value="{{ (form_data.exam_date if form_data else (exam.exam_date if exam else '')) }}" required>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <label for="start_time" class="form-label text-muted">Start Time <span class="text-danger">*</span></label>
+                    <input type="time" class="form-control bg-dark text-light border-secondary" id="start_time" name="start_time" value="{{ (form_data.start_time if form_data else (exam.start_time if exam else '')) }}" required>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label for="end_time" class="form-label text-muted">End Time <span class="text-danger">*</span></label>
+                    <input type="time" class="form-control bg-dark text-light border-secondary" id="end_time" name="end_time" value="{{ (form_data.end_time if form_data else (exam.end_time if exam else '')) }}" required>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="room_id" class="form-label text-muted">Exam Room <span class="text-danger">*</span></label>
+                    <select class="form-select bg-dark text-light border-secondary" id="room_id" name="room_id" required>
+                        <option value="">Select Room</option>
+                        {% for room in rooms %}
+                        <option value="{{ room.room_id }}" {% if (form_data and form_data.room_id|string == room.room_id|string) or (exam and exam.room_id == room.room_id) %}selected{% endif %}>
+                            {{ room.building }} - {{ room.room_number }} (Capacity: {{ room.capacity }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="invigilator_id" class="form-label text-muted">Invigilator <span class="text-danger">*</span></label>
+                    <select class="form-select bg-dark text-light border-secondary" id="invigilator_id" name="invigilator_id" required>
+                        <option value="">Select Invigilator</option>
+                        {% for inv in invigilators %}
+                        <option value="{{ inv.invigilator_id }}" {% if (form_data and form_data.invigilator_id|string == inv.invigilator_id|string) or (exam and exam.invigilator_id == inv.invigilator_id) %}selected{% endif %}>
+                            {{ inv.name }} ({{ inv.employee_id }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <label for="semester" class="form-label text-muted">Semester</label>
+                    {% set cur_sem = form_data.semester if form_data else (exam.semester if exam else 'Fall') %}
+                    <select class="form-select bg-dark text-light border-secondary" id="semester" name="semester" required>
+                        <option value="Fall" {% if cur_sem == 'Fall' %}selected{% endif %}>Fall</option>
+                        <option value="Winter" {% if cur_sem == 'Winter' %}selected{% endif %}>Winter</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <label for="academic_year" class="form-label text-muted">Academic Year</label>
+                    <input type="number" class="form-control bg-dark text-light border-secondary" id="academic_year" name="academic_year" value="{{ (form_data.academic_year if form_data else (exam.academic_year if exam else 2026)) }}" required min="2020" max="2100">
+                </div>
+
+                {% if exam %}
+                <div class="col-md-4 mb-3">
+                    <label for="status" class="form-label text-muted">Status</label>
+                    {% set cur_status = form_data.status if form_data else exam.status %}
+                    <select class="form-select bg-dark text-light border-secondary" id="status" name="status" required>
+                        <option value="Scheduled" {% if cur_status == 'Scheduled' %}selected{% endif %}>Scheduled</option>
+                        <option value="Ongoing" {% if cur_status == 'Ongoing' %}selected{% endif %}>Ongoing</option>
+                        <option value="Completed" {% if cur_status == 'Completed' %}selected{% endif %}>Completed</option>
+                        <option value="Cancelled" {% if cur_status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary" data-loading-text="Saving Exam...">
+                    <i class="bi bi-save me-1"></i> {{ 'Update' if exam else 'Schedule' }} Exam
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

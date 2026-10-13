@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Exam Sheet: {{ exam.subject_code }} — Invigilator{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar-header">
+    <i class="bi bi-person-badge-fill me-2"></i> Invigilator Panel
+</div>
+<ul class="sidebar-nav">
+    <li><a href="{{ url_for('invigilator.dashboard') }}">
+        <i class="bi bi-arrow-left"></i> Back to Dashboard</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h2><i class="bi bi-clipboard-check me-2"></i> Exam Operations</h2>
+            <p class="text-muted mb-0">
+                <span class="fw-bold">{{ exam.subject_code }}</span> ({{ exam.subject_name }}) - {{ exam.exam_type }} <br>
+                <small><i class="bi bi-geo-alt"></i> {{ exam.building }} {{ exam.room_number }} &nbsp;|&nbsp; <i class="bi bi-clock"></i> {{ exam.start_time }} to {{ exam.end_time }}</small>
+            </p>
+        </div>
+        <div>
+            <span class="badge bg-{{ 'success' if exam.status == 'Scheduled' else ('warning text-dark' if exam.status == 'Ongoing' else ('primary' if exam.status == 'Completed' else 'danger')) }} fs-6 px-3 py-2">
+                {{ exam.status }}
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="card bg-card border-0 mb-4">
+    <div class="card-header bg-transparent border-0">
+        <h5 class="mb-0"><i class="bi bi-people-fill me-2 text-accent"></i> Allocated Students & Attendance</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Seat</th>
+                        <th>Student</th>
+                        <th>Attendance</th>
+                        <th>Check-in Time</th>
+                        <th>Authentication</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for alloc in allocations %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-1">
+                                <span class="badge bg-secondary fs-6 font-monospace">{{ alloc.seat_number }}</span>
+                                <button type="button" class="btn-copy" data-copy="{{ alloc.seat_number }}" title="Copy seat number" aria-label="Copy seat number">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td>
+                            <strong>{{ alloc.name }}</strong><br>
+                            <span class="text-muted font-monospace small">{{ alloc.registration_no }}</span>
+                            <button type="button" class="btn-copy ms-1" data-copy="{{ alloc.registration_no }}" title="Copy registration number" aria-label="Copy registration number">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                        </td>
+                        <td>
+                            {% if alloc.attendance_status == 'Present' %}
+                                <span class="badge bg-success">Present</span>
+                            {% elif alloc.attendance_status == 'Absent' %}
+                                <span class="badge bg-danger">Absent</span>
+                            {% elif alloc.attendance_status == 'Late' %}
+                                <span class="badge bg-warning text-dark">Late</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Not Marked</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if alloc.check_in_time %}
+                                {{ alloc.check_in_time.strftime('%H:%M:%S') }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if alloc.has_auth > 0 %}
+                                <span class="badge bg-success"><i class="bi bi-check-circle"></i> Verified</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle"></i> Pending</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group me-2" role="group">
+                                <form action="{{ url_for('invigilator.mark_attendance_route', exam_id=exam.exam_id, allocation_id=alloc.allocation_id) }}" method="POST" class="d-inline">
+                                    <input type="hidden" name="status" value="Present">
+                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Mark Present"><i class="bi bi-check-lg"></i></button>
+                                </form>
+                                <form action="{{ url_for('invigilator.mark_attendance_route', exam_id=exam.exam_id, allocation_id=alloc.allocation_id) }}" method="POST" class="d-inline">
+                                    <input type="hidden" name="status" value="Absent">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Mark Absent"><i class="bi bi-x-lg"></i></button>
+                                </form>
+                                <form action="{{ url_for('invigilator.mark_attendance_route', exam_id=exam.exam_id, allocation_id=alloc.allocation_id) }}" method="POST" class="d-inline">
+                                    <input type="hidden" name="status" value="Late">
+                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Mark Late"><i class="bi bi-clock-history"></i></button>
+                                </form>
+                            </div>
+                            
+                            <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#authModal{{ alloc.allocation_id }}">
+                                <i class="bi bi-person-bounding-box"></i> Verify
+                            </button>
+
+                            <!-- Auth Modal -->
+                            <div class="modal fade" id="authModal{{ alloc.allocation_id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content bg-dark text-start">
+                                        <div class="modal-header border-secondary">
+                                            <h5 class="modal-title">Identity Verification: {{ alloc.registration_no }}</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form action="{{ url_for('invigilator.verify_identity', exam_id=exam.exam_id, allocation_id=alloc.allocation_id) }}" method="POST">
+                                            <div class="modal-body border-secondary">
+                                                <p class="mb-3">Simulate an authentication event for <strong>{{ alloc.name }}</strong> (Seat {{ alloc.seat_number }}).</p>
+                                                
+                                                <div class="mb-3">
+                                                    <label class="form-label">Authentication Method</label>
+                                                    <select name="method" class="form-select bg-secondary text-light border-0">
+                                                        <option value="Face">Face Recognition AI</option>
+                                                        <option value="QR">QR Code Scan</option>
+                                                        <option value="Manual">Manual ID Check</option>
+                                                    </select>
+                                                </div>
+                                                
+                                                <div class="mb-3">
+                                                    <label class="form-label">Result</label>
+                                                    <select name="success" class="form-select bg-secondary text-light border-0">
+                                                        <option value="1">Success - Identity Verified</option>
+                                                        <option value="0">Failed - Mismatch / Invalid</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer border-secondary">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-primary">Submit Result</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End Modal -->
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">No students allocated to this exam yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

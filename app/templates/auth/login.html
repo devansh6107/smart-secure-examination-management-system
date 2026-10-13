@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Login — ExamGuard AI{% endblock %}
+
+{% block page_content %}
+<div class="login-page">
+    <div class="login-container">
+        <!-- Branding -->
+        <div class="login-header text-center">
+            <div class="login-logo">
+                <i class="bi bi-shield-lock-fill"></i>
+            </div>
+            <h1 class="login-title">ExamGuard <span class="text-accent">AI</span></h1>
+            <p class="login-subtitle">Smart & Secure Examination Management</p>
+        </div>
+
+        <!-- Login Card -->
+        <div class="login-card">
+            <form method="POST" action="{{ url_for('auth.login') }}" id="loginForm" novalidate>
+                <div class="mb-4">
+                    <label for="username" class="form-label">
+                        <i class="bi bi-person-fill me-1"></i> Username
+                    </label>
+                    <input
+                        type="text"
+                        class="form-control form-control-lg"
+                        id="username"
+                        name="username"
+                        placeholder="Enter your username"
+                        required
+                        autofocus
+                    >
+                </div>
+
+                <div class="mb-4">
+                    <label for="password" class="form-label">
+                        <i class="bi bi-lock-fill me-1"></i> Password
+                    </label>
+                    <div class="input-group">
+                        <input
+                            type="password"
+                            class="form-control form-control-lg"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            required
+                        >
+                        <button class="btn btn-outline-secondary" type="button" id="togglePassword" aria-label="Toggle password visibility" aria-pressed="false">
+                            <i class="bi bi-eye-fill"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-accent btn-lg w-100 mb-3" data-loading-text="Signing in...">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Sign In
+                </button>
+            </form>
+
+            <!-- Demo Accounts -->
+            <div class="demo-accounts mt-4">
+                <p class="text-center text-muted small mb-3">
+                    <i class="bi bi-info-circle me-1"></i> Demo Accounts
+                </p>
+                <div class="row g-2">
+                    <div class="col-4">
+                        <button class="btn btn-outline-info btn-sm w-100 demo-btn"
+                                data-username="admin" data-password="admin123">
+                            <i class="bi bi-gear-fill d-block mb-1"></i>
+                            Admin
+                        </button>
+                    </div>
+                    <div class="col-4">
+                        <button class="btn btn-outline-success btn-sm w-100 demo-btn"
+                                data-username="rahul.kumar" data-password="student123">
+                            <i class="bi bi-mortarboard-fill d-block mb-1"></i>
+                            Student
+                        </button>
+                    </div>
+                    <div class="col-4">
+                        <button class="btn btn-outline-warning btn-sm w-100 demo-btn"
+                                data-username="dr.krishna" data-password="invig123">
+                            <i class="bi bi-person-badge-fill d-block mb-1"></i>
+                            Invigilator
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center text-muted mt-4 small">
+            <div>&copy; 2026 ExamGuard AI — DBMS Case Study Project</div>
+            <div class="mt-1 d-flex justify-content-center gap-2 align-items-center">
+                <span>v{{ APP_VERSION }}</span>
+                <span>·</span>
+                <span>Updated {{ APP_LAST_UPDATED }}</span>
+                <span>·</span>
+                <a href="{{ url_for('help_bp.faq') }}" class="text-accent text-decoration-none">Help & FAQ</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Toggle password visibility
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        const input = document.getElementById('password');
+        const icon = this.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('bi-eye-fill', 'bi-eye-slash-fill');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('bi-eye-slash-fill', 'bi-eye-fill');
+        }
+    });
+
+    // Demo account quick-fill
+    document.querySelectorAll('.demo-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.getElementById('username').value = this.dataset.username;
+            document.getElementById('password').value = this.dataset.password;
+        });
+    });
+</script>
+{% endblock %}

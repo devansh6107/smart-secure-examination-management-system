@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Hall Ticket - {{ ticket.subject_code }} — Student{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar-header">
+    <i class="bi bi-mortarboard-fill me-2"></i> Student Portal
+</div>
+<ul class="sidebar-nav">
+    <li><a href="{{ url_for('student.dashboard') }}">
+        <i class="bi bi-arrow-left"></i> Back to Dashboard</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header mb-4 d-flex justify-content-between align-items-center">
+    <div>
+        <h2><i class="bi bi-ticket-detailed me-2"></i> Examination Hall Ticket</h2>
+        <p class="text-muted">Please present this digital ticket upon entry.</p>
+    </div>
+    <button class="btn btn-outline-light" onclick="window.print()">
+        <i class="bi bi-printer me-1"></i> Print
+    </button>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card bg-card border-0 mb-4" id="hall-ticket">
+            <div class="card-header bg-dark text-center border-secondary py-4">
+                <h3 class="mb-0 text-accent fw-bold letter-spacing-1">SMART EXAM SYSTEM</h3>
+                <p class="mb-0 text-muted">Official Hall Ticket</p>
+            </div>
+            <div class="card-body p-5">
+                <div class="row mb-4">
+                    <div class="col-sm-4 text-muted fw-bold">Student Name</div>
+                    <div class="col-sm-8 fs-5 text-light">{{ student.name }}</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-sm-4 text-muted fw-bold">Registration No.</div>
+                    <div class="col-sm-8 fs-5 text-light font-monospace d-flex align-items-center">
+                        <span id="ticket-regno">{{ student.registration_no }}</span>
+                        <button type="button" class="btn-copy ms-2" data-copy="{{ student.registration_no }}" title="Copy registration number" aria-label="Copy registration number">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                </div>
+                <hr class="border-secondary mb-4">
+                <div class="row mb-4">
+                    <div class="col-sm-4 text-muted fw-bold">Subject</div>
+                    <div class="col-sm-8 fs-5 text-light">
+                        {{ ticket.subject_code }} - {{ ticket.subject_name }}
+                        <span class="badge bg-secondary ms-2">{{ ticket.exam_type }}</span>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-sm-4 text-muted fw-bold">Date & Time</div>
+                    <div class="col-sm-8 fs-5 text-light">
+                        <i class="bi bi-calendar3 me-2"></i>{{ ticket.exam_date }} <br>
+                        <i class="bi bi-clock me-2"></i>{{ ticket.start_time }} to {{ ticket.end_time }}
+                    </div>
+                </div>
+                
+                <div class="p-4 bg-dark rounded border border-secondary text-center mt-5">
+                    <h5 class="text-muted mb-3">Venue Allocation</h5>
+                    <div class="row">
+                        <div class="col-6 border-end border-secondary">
+                            <div class="text-muted mb-1">Room</div>
+                            <div class="fs-4 text-info fw-bold">{{ ticket.building }} {{ ticket.room_number }}</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1">Seat Number</div>
+                            <div class="fs-4 text-accent fw-bold d-flex align-items-center justify-content-center gap-2">
+                                <span>{{ ticket.seat_number }}</span>
+                                <button type="button" class="btn-copy" data-copy="{{ ticket.seat_number }}" title="Copy seat number" aria-label="Copy seat number">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if ticket.attendance_status %}
+                <div class="mt-4 text-center">
+                    {% if ticket.attendance_status == 'Present' %}
+                    <div class="alert alert-success d-inline-block px-5">
+                        <i class="bi bi-check-circle-fill me-2"></i> Attendance Marked: Present
+                        <br><small>Verified at {{ ticket.check_in_time.strftime('%H:%M:%S') }}</small>
+                    </div>
+                    {% elif ticket.attendance_status == 'Late' %}
+                    <div class="alert alert-warning text-dark d-inline-block px-5">
+                        <i class="bi bi-clock-history me-2"></i> Attendance Marked: Late
+                        <br><small>Verified at {{ ticket.check_in_time.strftime('%H:%M:%S') }}</small>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-footer bg-transparent border-secondary text-center py-3 text-muted small">
+                <i class="bi bi-info-circle me-1"></i> ID Verification (QR / Face) will be required at the venue.
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #hall-ticket, #hall-ticket * {
+        visibility: visible;
+    }
+    #hall-ticket {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        box-shadow: none !important;
+    }
+    .bg-dark {
+        background-color: #f8f9fa !important;
+        color: #000 !important;
+    }
+    .text-light { color: #000 !important; }
+    .text-muted { color: #6c757d !important; }
+}
+</style>
+{% endblock %}

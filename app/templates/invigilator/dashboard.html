@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Invigilator Dashboard — ExamGuard AI{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar-header">
+    <i class="bi bi-person-badge-fill me-2"></i> Invigilator Panel
+</div>
+<ul class="sidebar-nav">
+    <li><a href="{{ url_for('invigilator.dashboard') }}" class="active">
+        <i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li>
+    <li><a href="{{ url_for('invigilator.alerts') }}">
+        <i class="bi bi-shield-exclamation"></i> AI Alerts
+        {% if stats.get('pending_alerts', 0) > 0 %}
+        <span class="badge bg-danger ms-auto pulse">{{ stats.pending_alerts }}</span>
+        {% endif %}
+    </a></li>
+    <li><a href="{{ url_for('invigilator.incidents') }}">
+        <i class="bi bi-flag-fill"></i> Incidents</a></li>
+    <li><a href="{{ url_for('help_bp.faq') }}">
+        <i class="bi bi-question-circle-fill"></i> Help & FAQ</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header mb-4">
+    <h2><i class="bi bi-person-badge-fill me-2"></i> Welcome, {{ invigilator.name if invigilator else 'Invigilator' }}</h2>
+    <p class="text-muted">
+        {% if invigilator %}
+        {{ invigilator.employee_id }} · {{ invigilator.designation }}
+        {% endif %}
+    </p>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card stat-card-primary">
+            <div class="stat-card-body">
+                <div class="stat-icon"><i class="bi bi-calendar-event"></i></div>
+                <div class="stat-info">
+                    <h3>{{ stats.get('assigned_exams', 0) }}</h3>
+                    <p>Assigned Exams</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card stat-card-success">
+            <div class="stat-card-body">
+                <div class="stat-icon"><i class="bi bi-calendar-check"></i></div>
+                <div class="stat-info">
+                    <h3>{{ stats.get('today_exams', 0) }}</h3>
+                    <p>Today's Exams</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card stat-card-danger">
+            <div class="stat-card-body">
+                <div class="stat-icon"><i class="bi bi-shield-exclamation"></i></div>
+                <div class="stat-info">
+                    <h3>{{ stats.get('pending_alerts', 0) }}</h3>
+                    <p>Pending Alerts</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card stat-card-dark">
+            <div class="stat-card-body">
+                <div class="stat-icon"><i class="bi bi-flag"></i></div>
+                <div class="stat-info">
+                    <h3>{{ stats.get('total_incidents', 0) }}</h3>
+                    <p>My Incidents</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assigned Exams -->
+<div class="card bg-card border-0 mb-4">
+    <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-calendar-event-fill me-2 text-accent"></i> Assigned Exams</h5>
+        <span class="badge bg-accent text-dark">{{ exams|length }} exams</span>
+    </div>
+    <div class="card-body">
+        {% if exams %}
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Type</th>
+                        <th>Date & Time</th>
+                        <th>Room</th>
+                        <th>Allocated</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for exam in exams %}
+                    <tr>
+                        <td>
+                            <strong>{{ exam.subject_name }}</strong><br>
+                            <small class="text-muted">{{ exam.subject_code }}</small>
+                        </td>
+                        <td><span class="badge bg-secondary">{{ exam.exam_type }}</span></td>
+                        <td>
+                            {{ exam.exam_date }}<br>
+                            <small class="text-muted">{{ exam.start_time }} to {{ exam.end_time }}</small>
+                        </td>
+                        <td>{{ exam.building }} - {{ exam.room_number }}</td>
+                        <td><span class="badge bg-primary">{{ exam.allocated_count }}</span></td>
+                        <td>
+                            {% if exam.status == 'Scheduled' %}
+                                <span class="badge bg-info text-dark">Scheduled</span>
+                            {% elif exam.status == 'Ongoing' %}
+                                <span class="badge bg-warning text-dark">Ongoing</span>
+                            {% elif exam.status == 'Completed' %}
+                                <span class="badge bg-success">Completed</span>
+                            {% else %}
+                                <span class="badge bg-danger">Cancelled</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('invigilator.exam_sheet', exam_id=exam.exam_id) }}" class="btn btn-sm btn-outline-info" title="Manage Exam">
+                                    <i class="bi bi-clipboard-check"></i>
+                                </a>
+                                {% if exam.allocated_count > 0 %}
+                                <form action="{{ url_for('invigilator.simulate_proctoring', exam_id=exam.exam_id) }}" method="POST" class="d-inline">
+                                    <input type="hidden" name="count" value="3">
+                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Simulate AI Detection">
+                                        <i class="bi bi-robot"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4 text-muted">
+            <i class="bi bi-info-circle fs-1 d-block mb-2"></i>
+            <p>No exams assigned.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

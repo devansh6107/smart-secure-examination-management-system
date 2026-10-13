@@ -1,0 +1,48 @@
+{% extends "admin/dashboard.html" %}
+
+{% block title %}{{ 'Edit' if room else 'Add' }} Exam Room — Admin{% endblock %}
+
+{% block content %}
+<div class="dashboard-header mb-4">
+    <a href="{{ url_for('admin_rooms.index') }}" class="btn btn-sm btn-outline-secondary mb-3">
+        <i class="bi bi-arrow-left"></i> Back to Rooms
+    </a>
+    <h2><i class="bi bi-door-open-fill me-2"></i> {{ 'Edit' if room else 'Add' }} Exam Room</h2>
+</div>
+
+<div class="card bg-card border-0 max-w-600">
+    <div class="card-body p-4">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="room_number" class="form-label text-muted">Room Number</label>
+                    <input type="text" class="form-control bg-dark text-light border-secondary" id="room_number" name="room_number" value="{{ room.room_number if room else '' }}" required placeholder="e.g. 101A">
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="building" class="form-label text-muted">Building Name</label>
+                    <input type="text" class="form-control bg-dark text-light border-secondary" id="building" name="building" value="{{ room.building if room else '' }}" required placeholder="e.g. Main Block">
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <label for="floor" class="form-label text-muted">Floor</label>
+                    <input type="number" class="form-control bg-dark text-light border-secondary" id="floor" name="floor" value="{{ room.floor if room else 1 }}" required min="0" max="20">
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="capacity" class="form-label text-muted">Total Capacity</label>
+                    <input type="number" class="form-control bg-dark text-light border-secondary" id="capacity" name="capacity" value="{{ room.capacity if room else 30 }}" required min="1" max="500">
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save me-1"></i> Save Room
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "admin/dashboard.html" %}
+
+{% block title %}Seating Chart - {{ exam.subject_code }} — Admin{% endblock %}
+
+{% block content %}
+<div class="dashboard-header mb-4">
+    <a href="{{ url_for('admin_exams.index') }}" class="btn btn-sm btn-outline-secondary mb-3">
+        <i class="bi bi-arrow-left"></i> Back to Exams
+    </a>
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h2><i class="bi bi-grid-3x3 me-2"></i> Seating Chart</h2>
+            <p class="text-muted mb-0">
+                <span class="fw-bold">{{ exam.subject_code }}</span> ({{ exam.subject_name }}) - {{ exam.exam_type }} <br>
+                <small><i class="bi bi-geo-alt"></i> {{ exam.room_name }} &nbsp;|&nbsp; <i class="bi bi-calendar3"></i> {{ exam.exam_date }}</small>
+            </p>
+        </div>
+        <div>
+            <form action="{{ url_for('admin_exams.allocate_seats', exam_id=exam.exam_id) }}" method="POST" class="d-inline">
+                <button type="submit" class="btn btn-primary" {% if exam.status == 'Completed' or exam.status == 'Cancelled' %}disabled{% endif %}>
+                    <i class="bi bi-magic me-1"></i> Auto-Allocate Unassigned
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="card bg-card border-0 mb-4">
+    <div class="card-body">
+        <h5 class="card-title text-accent mb-4"><i class="bi bi-layout-text-window-reverse me-2"></i> Room Layout</h5>
+        
+        <div class="d-flex justify-content-center mb-4">
+            <div class="bg-secondary text-center py-2 rounded shadow-sm w-75 fw-bold letter-spacing-1">
+                WHITEBOARD / FRONT OF ROOM
+            </div>
+        </div>
+
+        <div class="seating-grid">
+            {% set current_row = 0 %}
+            {% for seat in chart_data %}
+                {% if seat.row_no != current_row %}
+                    {% if current_row != 0 %}</div>{% endif %}
+                    <div class="d-flex justify-content-center gap-3 mb-3">
+                    {% set current_row = seat.row_no %}
+                {% endif %}
+                
+                <div class="card text-center {% if seat.allocation_status == 'Allocated' %}bg-success text-white{% else %}bg-dark text-light border-secondary{% endif %}" style="width: 120px;">
+                    <div class="card-header py-1 {% if seat.allocation_status == 'Allocated' %}bg-success text-white border-white{% else %}border-secondary{% endif %}">
+                        <strong>{{ seat.seat_number }}</strong>
+                    </div>
+                    <div class="card-body p-2 d-flex flex-column justify-content-center align-items-center" style="min-height: 80px;">
+                        {% if seat.allocation_status == 'Allocated' %}
+                            <small class="fw-bold text-truncate w-100" title="{{ seat.registration_no }}">{{ seat.registration_no }}</small>
+                            <small class="text-truncate w-100 d-block" style="font-size: 0.75rem;" title="{{ seat.name }}">{{ seat.name }}</small>
+                            
+                            {% if exam.status != 'Completed' and exam.status != 'Cancelled' %}
+                            <form action="{{ url_for('admin_exams.cancel_allocation', exam_id=exam.exam_id, allocation_id=seat.allocation_id) }}" method="POST" class="mt-2 w-100">
+                                <button type="submit" class="btn btn-sm btn-danger py-0 px-1 w-100" style="font-size: 0.7rem;">Cancel</button>
+                            </form>
+                            {% endif %}
+                        {% else %}
+                            <small class="text-muted fst-italic">Empty</small>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            {% if current_row != 0 %}</div>{% endif %}
+        </div>
+        
+        {% if not chart_data %}
+        <div class="alert alert-warning text-center">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> No seats have been generated for this room yet. Go to Exam Rooms to generate seats.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

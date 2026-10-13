@@ -1,0 +1,129 @@
+{% extends "admin/dashboard.html" %}
+
+{% block title %}AI Alerts — Admin{% endblock %}
+
+{% block content %}
+<div class="dashboard-header mb-4">
+    <h2><i class="bi bi-shield-exclamation me-2"></i> AI Proctoring Alerts</h2>
+    <p class="text-muted">Monitor all AI-generated alerts across examinations</p>
+</div>
+
+<!-- Filters -->
+<div class="card bg-card border-0 mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Exam</label>
+                <select name="exam" class="form-select bg-dark text-light border-secondary">
+                    <option value="">All Exams</option>
+                    {% for e in exams %}
+                    <option value="{{ e.exam_id }}" {% if current_exam == e.exam_id|string %}selected{% endif %}>
+                        {{ e.subject_code }} {{ e.exam_type }} ({{ e.exam_date }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Alert Type</label>
+                <select name="type" class="form-select bg-dark text-light border-secondary">
+                    <option value="">All Types</option>
+                    <option value="Phone Detected" {% if current_type == 'Phone Detected' %}selected{% endif %}>Phone Detected</option>
+                    <option value="Multiple Faces" {% if current_type == 'Multiple Faces' %}selected{% endif %}>Multiple Faces</option>
+                    <option value="Suspicious Movement" {% if current_type == 'Suspicious Movement' %}selected{% endif %}>Suspicious Movement</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Status</label>
+                <select name="status" class="form-select bg-dark text-light border-secondary">
+                    <option value="">All Statuses</option>
+                    <option value="Pending" {% if current_status == 'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="Reviewed" {% if current_status == 'Reviewed' %}selected{% endif %}>Reviewed</option>
+                    <option value="Ignored" {% if current_status == 'Ignored' %}selected{% endif %}>Ignored</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-accent w-100"><i class="bi bi-funnel me-1"></i> Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Alerts Table -->
+<div class="card bg-card border-0">
+    <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-list-ul me-2 text-accent"></i> Alert Log</h5>
+        <span class="badge bg-accent text-dark">{{ alerts|length }} results</span>
+    </div>
+    <div class="card-body">
+        {% if alerts %}
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Exam</th>
+                        <th>Room / Seat</th>
+                        <th>Alert Type</th>
+                        <th>Confidence</th>
+                        <th>Time</th>
+                        <th>Invigilator</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in alerts %}
+                    <tr>
+                        <td>
+                            <strong>{{ a.student_name }}</strong><br>
+                            <small class="text-muted">{{ a.registration_no }}</small>
+                        </td>
+                        <td>
+                            {{ a.subject_code }} {{ a.exam_type }}
+                        </td>
+                        <td>
+                            {{ a.building }} {{ a.room_number }}<br>
+                            <small class="text-muted">Seat {{ a.seat_number }}</small>
+                        </td>
+                        <td>
+                            {% if a.alert_type == 'Phone Detected' %}
+                                <span class="badge bg-danger"><i class="bi bi-phone me-1"></i>{{ a.alert_type }}</span>
+                            {% elif a.alert_type == 'Multiple Faces' %}
+                                <span class="badge bg-warning text-dark"><i class="bi bi-people me-1"></i>{{ a.alert_type }}</span>
+                            {% else %}
+                                <span class="badge bg-info text-dark"><i class="bi bi-exclamation-triangle me-1"></i>{{ a.alert_type }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="progress bg-dark" style="height: 20px; width: 80px;">
+                                <div class="progress-bar {% if a.confidence >= 0.8 %}bg-danger{% elif a.confidence >= 0.6 %}bg-warning{% else %}bg-info{% endif %}"
+                                     style="width: {{ (a.confidence * 100)|int }}%">
+                                    {{ "%.0f"|format(a.confidence * 100) }}%
+                                </div>
+                            </div>
+                        </td>
+                        <td><small>{{ a.alert_time }}</small></td>
+                        <td><small>{{ a.invigilator_name }}</small></td>
+                        <td>
+                            {% if a.status == 'Pending' %}
+                                <span class="badge bg-danger pulse">Pending</span>
+                            {% elif a.status == 'Reviewed' %}
+                                <span class="badge bg-success">Reviewed</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Ignored</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-shield-check fs-1 d-block mb-3"></i>
+            <h5>No Alerts Found</h5>
+            <p>No AI proctoring alerts match your filters.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

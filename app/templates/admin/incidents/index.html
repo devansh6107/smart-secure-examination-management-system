@@ -1,0 +1,65 @@
+{% extends "admin/dashboard.html" %}
+
+{% block title %}Incidents — Admin{% endblock %}
+
+{% block content %}
+<div class="dashboard-header mb-4">
+    <h2><i class="bi bi-flag-fill me-2"></i> Incident Reports</h2>
+    <p class="text-muted">All incident reports filed by invigilators</p>
+</div>
+
+<div class="card bg-card border-0">
+    <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-list-ul me-2 text-accent"></i> Incident Log</h5>
+        <span class="badge bg-accent text-dark">{{ incidents|length }} records</span>
+    </div>
+    <div class="card-body">
+        {% if incidents %}
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Student</th>
+                        <th>Exam</th>
+                        <th>Room / Seat</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Action Taken</th>
+                        <th>Filed By</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inc in incidents %}
+                    <tr>
+                        <td>{{ inc.incident_id }}</td>
+                        <td>
+                            <strong>{{ inc.student_name }}</strong><br>
+                            <small class="text-muted">{{ inc.registration_no }}</small>
+                        </td>
+                        <td>{{ inc.subject_code }} {{ inc.exam_type }}</td>
+                        <td>
+                            {{ inc.building }} {{ inc.room_number }}<br>
+                            <small class="text-muted">Seat {{ inc.seat_number }}</small>
+                        </td>
+                        <td><span class="badge bg-danger">{{ inc.incident_type }}</span></td>
+                        <td><small>{{ inc.description|truncate(60) if inc.description else '-' }}</small></td>
+                        <td><small>{{ inc.action_taken|truncate(60) if inc.action_taken else '-' }}</small></td>
+                        <td><small>{{ inc.invigilator_name }}</small></td>
+                        <td><small>{{ inc.incident_time }}</small></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-check-circle fs-1 d-block mb-3"></i>
+            <h5>No Incidents</h5>
+            <p>No incident reports have been filed.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

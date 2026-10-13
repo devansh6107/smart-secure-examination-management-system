@@ -1,0 +1,365 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard — ExamGuard AI{% endblock %}
+
+{% block sidebar %}
+    {% include 'admin/_sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h2><i class="bi bi-grid-1x2-fill me-2"></i> Admin Dashboard</h2>
+    <p class="text-muted">Overview of the examination management system</p>
+</div>
+
+<!-- Stats Cards Row 1 -->
+<div class="row g-4 mb-4">
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12">
+        <div class="stat-card stat-card-primary">
+            <div class="stat-card-body">
+                <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+                <div class="stat-info">
+                    <h3>{{ stats.get('total_students', 0) }}</h3>
+                    <p>Students</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12">
+        <div class="stat-card stat-card-success">
+            <div class="stat-card-body">
+                <div class="stat-icon"><i class="bi bi-calendar-event-fill"></i></div>
+                <div class="stat-info">
+                    <h3>{{ stats.get('active_exams', 0) }}</h3>
+                    <p>Active Exams</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12">
+        <div class="stat-card stat-card-warning">
+            <div class="stat-card-body">
+                <div class="stat-icon"><i class="bi bi-door-open-fill"></i></div>
+                <div class="stat-info">
+                    <h3>{{ stats.get('total_rooms', 0) }}</h3>
+                    <p>Rooms</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12">
+        <div class="stat-card stat-card-info">
+            <div class="stat-card-body">
+                <div class="stat-icon"><i class="bi bi-clipboard-check-fill"></i></div>
+                <div class="stat-info">
+                    <h3>{{ stats.get('attendance_pct', 0) }}%</h3>
+                    <p>Attendance</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12">
+        <div class="stat-card stat-card-danger">
+            <div class="stat-card-body">
+                <div class="stat-icon"><i class="bi bi-shield-exclamation"></i></div>
+                <div class="stat-info">
+                    <h3>{{ stats.get('pending_alerts', 0) }}</h3>
+                    <p>Pending Alerts</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12">
+        <div class="stat-card stat-card-dark">
+            <div class="stat-card-body">
+                <div class="stat-icon"><i class="bi bi-flag-fill"></i></div>
+                <div class="stat-info">
+                    <h3>{{ stats.get('total_incidents', 0) }}</h3>
+                    <p>Incidents</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+    <!-- Attendance by Exam (Bar) -->
+    <div class="col-lg-8">
+        <div class="card bg-card border-0">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="mb-0"><i class="bi bi-bar-chart-fill me-2 text-accent"></i> Attendance by Exam</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="attendanceByExamChart" height="280"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts by Type (Doughnut) -->
+    <div class="col-lg-4">
+        <div class="card bg-card border-0">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="mb-0"><i class="bi bi-shield-exclamation me-2 text-warning"></i> Alerts by Type</h5>
+            </div>
+            <div class="card-body">
+                {% if stats.get('alerts_by_type') %}
+                <canvas id="alertsByTypeChart" height="280"></canvas>
+                {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-check-circle fs-1 d-block mb-2"></i>
+                    <p>No AI alerts generated yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Attendance Distribution -->
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card bg-card border-0">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="mb-0"><i class="bi bi-pie-chart-fill me-2 text-accent"></i> Attendance Distribution</h5>
+            </div>
+            <div class="card-body">
+                {% if stats.get('attendance') and stats.attendance.total > 0 %}
+                <canvas id="attendanceDistChart" height="280"></canvas>
+                {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-clipboard-x fs-1 d-block mb-2"></i>
+                    <p>No attendance data recorded yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card bg-card border-0">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="mb-0"><i class="bi bi-info-circle-fill me-2 text-accent"></i> Quick Summary</h5>
+            </div>
+            <div class="card-body">
+                {% if stats.get('attendance') %}
+                <ul class="list-group list-group-flush bg-transparent">
+                    <li class="list-group-item bg-transparent d-flex justify-content-between">
+                        <span><i class="bi bi-check-circle-fill text-success me-2"></i> Present</span>
+                        <span class="badge bg-success fs-6">{{ stats.attendance.present }}</span>
+                    </li>
+                    <li class="list-group-item bg-transparent d-flex justify-content-between">
+                        <span><i class="bi bi-x-circle-fill text-danger me-2"></i> Absent</span>
+                        <span class="badge bg-danger fs-6">{{ stats.attendance.absent }}</span>
+                    </li>
+                    <li class="list-group-item bg-transparent d-flex justify-content-between">
+                        <span><i class="bi bi-clock-fill text-warning me-2"></i> Late</span>
+                        <span class="badge bg-warning text-dark fs-6">{{ stats.attendance.late }}</span>
+                    </li>
+                </ul>
+                {% endif %}
+                <hr class="border-secondary">
+                <div class="row text-center g-3 mt-2">
+                    <div class="col-4">
+                        <a href="{{ url_for('admin_alerts.index') }}" class="btn btn-outline-danger btn-sm w-100">
+                            <i class="bi bi-shield-exclamation"></i><br>View Alerts
+                        </a>
+                    </div>
+                    <div class="col-4">
+                        <a href="{{ url_for('admin_incidents.index') }}" class="btn btn-outline-warning btn-sm w-100">
+                            <i class="bi bi-flag"></i><br>View Incidents
+                        </a>
+                    </div>
+                    <div class="col-4">
+                        <a href="{{ url_for('admin_exams.index') }}" class="btn btn-outline-info btn-sm w-100">
+                            <i class="bi bi-calendar-event"></i><br>Manage Exams
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+{% set s = stats if stats is defined else {} %}
+
+const getThemeColors = () => {
+    const isLight = document.documentElement.getAttribute('data-bs-theme') === 'light';
+    return {
+        // High-contrast neutral slate (#334155 in light mode, #e2e8f0 in dark mode)
+        text: isLight ? '#334155' : '#e2e8f0',
+        muted: isLight ? '#64748b' : '#94a3b8',
+        grid: isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.06)'
+    };
+};
+
+let themeColors = getThemeColors();
+
+const chartLegendFont = {
+    family: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+    size: 13,
+    weight: '600'
+};
+
+// ── Attendance by Exam (Stacked Bar) ──
+{% if s.get('attendance_by_exam') %}
+const abeCtx = document.getElementById('attendanceByExamChart').getContext('2d');
+new Chart(abeCtx, {
+    type: 'bar',
+    data: {
+        labels: [{% for d in s.attendance_by_exam %}'{{ d.label }}'{% if not loop.last %},{% endif %}{% endfor %}],
+        datasets: [
+            {
+                label: 'Present',
+                data: [{% for d in s.attendance_by_exam %}{{ d.present }}{% if not loop.last %},{% endif %}{% endfor %}],
+                backgroundColor: 'rgba(34, 197, 94, 0.85)',
+                borderRadius: 4
+            },
+            {
+                label: 'Absent',
+                data: [{% for d in s.attendance_by_exam %}{{ d.absent }}{% if not loop.last %},{% endif %}{% endfor %}],
+                backgroundColor: 'rgba(239, 68, 68, 0.85)',
+                borderRadius: 4
+            },
+            {
+                label: 'Late',
+                data: [{% for d in s.attendance_by_exam %}{{ d.late }}{% if not loop.last %},{% endif %}{% endfor %}],
+                backgroundColor: 'rgba(234, 179, 8, 0.85)',
+                borderRadius: 4
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: { stacked: true, ticks: { color: themeColors.muted, font: { family: "'Inter', sans-serif" } }, grid: { color: themeColors.grid } },
+            y: { stacked: true, beginAtZero: true, ticks: { color: themeColors.muted, font: { family: "'Inter', sans-serif" } }, grid: { color: themeColors.grid } }
+        },
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: {
+                    color: themeColors.text,
+                    font: chartLegendFont,
+                    padding: 14,
+                    boxWidth: 14,
+                    boxHeight: 14,
+                    borderRadius: 3
+                }
+            }
+        }
+    }
+});
+{% endif %}
+
+// ── Alerts by Type (Doughnut) ──
+{% if s.get('alerts_by_type') %}
+const abtCtx = document.getElementById('alertsByTypeChart').getContext('2d');
+new Chart(abtCtx, {
+    type: 'doughnut',
+    data: {
+        labels: [{% for d in s.alerts_by_type %}'{{ d.alert_type }}'{% if not loop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            data: [{% for d in s.alerts_by_type %}{{ d.cnt }}{% if not loop.last %},{% endif %}{% endfor %}],
+            backgroundColor: ['rgba(239, 68, 68, 0.85)', 'rgba(234, 179, 8, 0.85)', 'rgba(99, 102, 241, 0.85)'],
+            borderWidth: 2,
+            borderColor: document.documentElement.getAttribute('data-bs-theme') === 'light' ? '#ffffff' : '#1a1d28',
+            hoverOffset: 10
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    color: themeColors.text,
+                    font: chartLegendFont,
+                    padding: 16,
+                    boxWidth: 14,
+                    boxHeight: 14,
+                    borderRadius: 3
+                }
+            }
+        }
+    }
+});
+{% endif %}
+
+// ── Attendance Distribution (Doughnut) ──
+{% if s.get('attendance') and s.attendance.total > 0 %}
+const adCtx = document.getElementById('attendanceDistChart').getContext('2d');
+new Chart(adCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Present', 'Absent', 'Late'],
+        datasets: [{
+            data: [{{ s.attendance.present }}, {{ s.attendance.absent }}, {{ s.attendance.late }}],
+            backgroundColor: ['rgba(34,197,94,0.85)', 'rgba(239,68,68,0.85)', 'rgba(234,179,8,0.85)'],
+            borderWidth: 2,
+            borderColor: document.documentElement.getAttribute('data-bs-theme') === 'light' ? '#ffffff' : '#1a1d28',
+            hoverOffset: 10
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    color: themeColors.text,
+                    font: chartLegendFont,
+                    padding: 16,
+                    boxWidth: 14,
+                    boxHeight: 14,
+                    borderRadius: 3
+                }
+            }
+        }
+    }
+});
+{% endif %}
+
+// Listen for theme changes to update chart colors dynamically
+function updateAllCharts() {
+    const colors = getThemeColors();
+    const isLight = document.documentElement.getAttribute('data-bs-theme') === 'light';
+    const instances = (typeof Chart !== 'undefined' && Chart.instances)
+        ? Object.values(Chart.instances)
+        : [];
+    instances.forEach(chart => {
+        if (!chart) return;
+        if (chart.options.scales) {
+            if (chart.options.scales.x) {
+                chart.options.scales.x.ticks.color = colors.muted;
+                chart.options.scales.x.grid.color = colors.grid;
+            }
+            if (chart.options.scales.y) {
+                chart.options.scales.y.ticks.color = colors.muted;
+                chart.options.scales.y.grid.color = colors.grid;
+            }
+        }
+        if (chart.options.plugins && chart.options.plugins.legend) {
+            if (chart.options.plugins.legend.labels) {
+                chart.options.plugins.legend.labels.color = colors.text;
+            }
+        }
+        if (chart.data && chart.data.datasets) {
+            chart.data.datasets.forEach(ds => {
+                if (chart.config.type === 'doughnut') {
+                    ds.borderColor = isLight ? '#ffffff' : '#1a1d28';
+                }
+            });
+        }
+        chart.update();
+    });
+}
+
+document.addEventListener('themeChanged', updateAllCharts);
+</script>
+{% endblock %}

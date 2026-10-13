@@ -1,0 +1,93 @@
+{% extends "admin/dashboard.html" %}
+
+{% block title %}Exams — Admin{% endblock %}
+
+{% block content %}
+<div class="dashboard-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2><i class="bi bi-calendar-event me-2"></i> Exams</h2>
+        <p class="text-muted">Manage examinations and schedules</p>
+    </div>
+    <a href="{{ url_for('admin_exams.add') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i> Schedule Exam
+    </a>
+</div>
+
+<div class="card bg-card border-0">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Date & Time</th>
+                        <th>Room</th>
+                        <th>Invigilator</th>
+                        <th>Status</th>
+                        <th>Registrations</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for exam in exams %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-1">
+                                <span class="fw-bold font-monospace">{{ exam.subject_code }}</span>
+                                <button type="button" class="btn-copy" data-copy="{{ exam.subject_code }}" title="Copy subject code" aria-label="Copy subject code">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">{{ exam.subject_name }}</small>
+                            <div><span class="badge bg-secondary">{{ exam.exam_type }}</span></div>
+                        </td>
+                        <td>
+                            <div>{{ exam.exam_date }}</div>
+                            <small class="text-muted">{{ exam.start_time }} - {{ exam.end_time }}</small>
+                        </td>
+                        <td>{{ exam.room_name }}</td>
+                        <td>{{ exam.invigilator_name }}</td>
+                        <td>
+                            {% if exam.status == 'Scheduled' %}
+                                <span class="badge bg-info text-dark">Scheduled</span>
+                            {% elif exam.status == 'Ongoing' %}
+                                <span class="badge bg-warning text-dark">Ongoing</span>
+                            {% elif exam.status == 'Completed' %}
+                                <span class="badge bg-success">Completed</span>
+                            {% else %}
+                                <span class="badge bg-danger">Cancelled</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <span class="badge rounded-pill bg-light text-dark fs-6">{{ exam.registered_students }}</span>
+                        </td>
+                        <td class="text-end">
+                            <a href="{{ url_for('admin_registrations.index', exam_id=exam.exam_id) }}" class="btn btn-sm btn-outline-info me-1" title="Manage Registrations">
+                                <i class="bi bi-people"></i>
+                            </a>
+                            <a href="{{ url_for('admin_exams.edit', exam_id=exam.exam_id) }}" class="btn btn-sm btn-outline-light me-1" title="Edit Exam">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            {% if exam.status != 'Cancelled' %}
+                            <form action="{{ url_for('admin_exams.cancel', exam_id=exam.exam_id) }}" method="POST" class="d-inline">
+                                <button type="button" class="btn btn-sm btn-outline-danger" title="Cancel Exam"
+                                        data-confirm="Are you sure you want to cancel the scheduled exam for {{ exam.subject_code }} ({{ exam.exam_type }}) on {{ exam.exam_date }}? This will halt student allocations."
+                                        data-confirm-title="Cancel Exam"
+                                        data-confirm-btn="Cancel Exam">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">No exams found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "admin/dashboard.html" %}
+
+{% block title %}{{ 'Edit' if invigilator else 'Add' }} Invigilator — Admin{% endblock %}
+
+{% block content %}
+<div class="dashboard-header mb-4">
+    <a href="{{ url_for('admin_invigilators.index') }}" class="btn btn-sm btn-outline-secondary mb-3">
+        <i class="bi bi-arrow-left"></i> Back to Invigilators
+    </a>
+    <h2><i class="bi bi-person-badge-fill me-2"></i> {{ 'Edit' if invigilator else 'Add' }} Invigilator</h2>
+</div>
+
+<div class="card bg-card border-0 max-w-800">
+    <div class="card-body p-4">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="employee_id" class="form-label text-muted">Employee ID <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control bg-dark text-light border-secondary" id="employee_id" name="employee_id" value="{{ (form_data.employee_id if form_data else (invigilator.employee_id if invigilator else '')) }}" required placeholder="e.g. EMP1001">
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="name" class="form-label text-muted">Full Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control bg-dark text-light border-secondary" id="name" name="name" value="{{ (form_data.name if form_data else (invigilator.name if invigilator else '')) }}" required placeholder="e.g. Dr. Jane Smith">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="designation" class="form-label text-muted">Designation <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control bg-dark text-light border-secondary" id="designation" name="designation" value="{{ (form_data.designation if form_data else (invigilator.designation if invigilator else '')) }}" required placeholder="e.g. Associate Professor">
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="phone" class="form-label text-muted">Phone Number</label>
+                    <input type="text" class="form-control bg-dark text-light border-secondary" id="phone" name="phone" value="{{ (form_data.phone if form_data else (invigilator.phone if invigilator else '')) }}" placeholder="e.g. +91 9876543210">
+                </div>
+            </div>
+            
+            {% if not invigilator %}
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <label for="password" class="form-label text-muted">Initial Password</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control bg-dark text-light border-secondary" id="password" name="password" placeholder="Defaults to 'invig123'">
+                        <button class="btn btn-outline-secondary password-toggle-btn" type="button" aria-label="Toggle password visibility">
+                            <i class="bi bi-eye-fill"></i>
+                        </button>
+                    </div>
+                    <div class="form-text text-muted">A user account will be created automatically. Username is the Employee ID.</div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary" data-loading-text="Saving Invigilator...">
+                    <i class="bi bi-save me-1"></i> Save Invigilator
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

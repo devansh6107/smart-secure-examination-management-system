@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+
+{% block title %}Help & FAQ — ExamGuard AI{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar-header">
+    <i class="bi bi-question-circle-fill me-2"></i> Help Center
+</div>
+<ul class="sidebar-nav">
+    {% if session.get('role') == 'ADMIN' %}
+    <li><a href="{{ url_for('admin.dashboard') }}"><i class="bi bi-speedometer2"></i> Admin Dashboard</a></li>
+    {% elif session.get('role') == 'STUDENT' %}
+    <li><a href="{{ url_for('student.dashboard') }}"><i class="bi bi-mortarboard-fill"></i> Student Portal</a></li>
+    {% elif session.get('role') == 'INVIGILATOR' %}
+    <li><a href="{{ url_for('invigilator.dashboard') }}"><i class="bi bi-person-badge-fill"></i> Invigilator Panel</a></li>
+    {% endif %}
+    <li><a href="{{ url_for('help_bp.faq') }}" class="active"><i class="bi bi-patch-question-fill"></i> Frequently Asked Questions</a></li>
+</ul>
+{% endblock %}
+
+{% block public_content %}
+<div class="container py-5">
+    {{ self.content() }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Home</a></li>
+            <li class="breadcrumb-item active text-accent" aria-current="page">Help & FAQ</li>
+        </ol>
+    </nav>
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <h2><i class="bi bi-question-diamond-fill me-2 text-accent"></i> Help & Frequently Asked Questions</h2>
+            <p class="text-muted mb-0">Guidance for Students, Invigilators, and Administrators using ExamGuard AI</p>
+        </div>
+        <div>
+            <a href="#support-contacts" class="btn btn-outline-accent btn-sm">
+                <i class="bi bi-headset me-1"></i> Contact Support Desk
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <!-- FAQ Search input -->
+        <div class="card bg-card border-0 mb-4 p-3 shadow-sm">
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-subtle text-muted"><i class="bi bi-search"></i></span>
+                <input type="text" id="faqSearchInput" class="form-control bg-transparent border-subtle" placeholder="Filter questions by keyword (e.g., login, hall ticket, seating)..." aria-label="Filter FAQ">
+                <button class="btn btn-outline-secondary" type="button" id="faqClearBtn">Clear</button>
+            </div>
+        </div>
+
+        <!-- Accordion Container -->
+        <div class="accordion accordion-flush custom-faq-accordion" id="faqAccordion">
+
+            <!-- Q1: Login -->
+            <div class="accordion-item bg-card border-subtle mb-3 rounded overflow-hidden faq-card" data-keywords="login account credentials password sign in authentication">
+                <h3 class="accordion-header" id="headingOne">
+                    <button class="accordion-button collapsed bg-transparent text-primary fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faqOne" aria-expanded="false" aria-controls="faqOne">
+                        <i class="bi bi-key-fill text-accent me-2"></i> How does login work?
+                    </button>
+                </h3>
+                <div id="faqOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-body-secondary pt-0">
+                        <p>ExamGuard AI uses role-based authentication with secure password verification (PBKDF2-SHA256). Each user belongs to one of three roles:</p>
+                        <ul>
+                            <li><strong>Admin:</strong> System administration, room scheduling, and master reports.</li>
+                            <li><strong>Student:</strong> Viewing registered exams, seating allocations, and generating verified hall tickets.</li>
+                            <li><strong>Invigilator:</strong> Monitoring exam rooms, marking attendance, and reviewing AI proctoring alerts.</li>
+                        </ul>
+                        <p class="mb-0">For demo purposes, the login screen provides one-click account buttons for sample profiles in each role.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Q2: Admin capabilities -->
+            <div class="accordion-item bg-card border-subtle mb-3 rounded overflow-hidden faq-card" data-keywords="admin management department subject room schedule create edit">
+                <h3 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button collapsed bg-transparent text-primary fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faqTwo" aria-expanded="false" aria-controls="faqTwo">
+                        <i class="bi bi-shield-lock-fill text-accent me-2"></i> What can an Admin do?
+                    </button>
+                </h3>
+                <div id="faqTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-body-secondary pt-0">
+                        <p>System Administrators hold full administrative authority over master data and exam workflows:</p>
+                        <ul>
+                            <li>Maintain departments, subjects, classrooms, and seat grids.</li>
+                            <li>Onboard and manage student profiles and invigilator faculty assignments.</li>
+                            <li>Schedule examinations, set dates, start/end timings, and exam types (CAT1, CAT2, FAT).</li>
+                            <li>Execute automated seat allocations and review capacity limits.</li>
+                            <li>Supervise all flagged AI proctoring alerts and recorded examination incidents.</li>
+                            <li>Generate and print consolidated attendance reports and exam summary analytics.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Q3: Student hall ticket -->
+            <div class="accordion-item bg-card border-subtle mb-3 rounded overflow-hidden faq-card" data-keywords="student hall ticket seat admit card print view download">
+                <h3 class="accordion-header" id="headingThree">
+                    <button class="accordion-button collapsed bg-transparent text-primary fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faqThree" aria-expanded="false" aria-controls="faqThree">
+                        <i class="bi bi-card-checklist text-accent me-2"></i> How can a Student view a hall ticket?
+                    </button>
+                </h3>
+                <div id="faqThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-body-secondary pt-0">
+                        <p>Once logged into the <strong>Student Portal</strong>:</p>
+                        <ol>
+                            <li>Navigate to <strong>My Exams</strong> on the dashboard.</li>
+                            <li>Locate the relevant exam in your schedule table.</li>
+                            <li>Click the <strong><i class="bi bi-file-earmark-person"></i> Hall Ticket</strong> button in the action column.</li>
+                            <li>Review your allocated building, room number, assigned seat identifier, and exam instructions.</li>
+                            <li>Use the built-in <strong>Print Ticket</strong> action to obtain a clean physical copy formatted with our print styles.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Q4: Exam registration -->
+            <div class="accordion-item bg-card border-subtle mb-3 rounded overflow-hidden faq-card" data-keywords="registration enroll exam add cancel course">
+                <h3 class="accordion-header" id="headingFour">
+                    <button class="accordion-button collapsed bg-transparent text-primary fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faqFour" aria-expanded="false" aria-controls="faqFour">
+                        <i class="bi bi-clipboard-plus-fill text-accent me-2"></i> How is exam registration managed?
+                    </button>
+                </h3>
+                <div id="faqFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-body-secondary pt-0">
+                        <p>Exam registrations link enrolled students with scheduled examinations:</p>
+                        <ul>
+                            <li>Administrators manage course registrations via the <strong>Exams &rarr; Registrations</strong> module.</li>
+                            <li>The database enforces strict uniqueness constraints: a student cannot be registered twice for the same exam.</li>
+                            <li>If an administrative cancellation is required, administrators can cancel a registration with confirmation feedback.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Q5: Seat allocation -->
+            <div class="accordion-item bg-card border-subtle mb-3 rounded overflow-hidden faq-card" data-keywords="seats allocation room capacity overflow grid">
+                <h3 class="accordion-header" id="headingFive">
+                    <button class="accordion-button collapsed bg-transparent text-primary fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faqFive" aria-expanded="false" aria-controls="faqFive">
+                        <i class="bi bi-diagram-3-fill text-accent me-2"></i> How are seats allocated?
+                    </button>
+                </h3>
+                <div id="faqFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-body-secondary pt-0">
+                        <p>ExamGuard AI features automated deterministic seat allocation algorithms:</p>
+                        <ul>
+                            <li>Rooms have physical grid layouts (Rows A–Z, Columns 1–N) generated according to room dimensions.</li>
+                            <li>The allocation engine validates room capacity against registered student count before allocation.</li>
+                            <li>If registered students exceed available unallocated seats, a <em>Capacity Overflow</em> safeguard prevents partial corruption.</li>
+                            <li>Students receive sequential, unique seat numbers preventing collisions.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Q6: Attendance marking -->
+            <div class="accordion-item bg-card border-subtle mb-3 rounded overflow-hidden faq-card" data-keywords="attendance present absent biometric check-in verify invigilator">
+                <h3 class="accordion-header" id="headingSix">
+                    <button class="accordion-button collapsed bg-transparent text-primary fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faqSix" aria-expanded="false" aria-controls="faqSix">
+                        <i class="bi bi-person-check-fill text-accent me-2"></i> How is attendance marked?
+                    </button>
+                </h3>
+                <div id="faqSix" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-body-secondary pt-0">
+                        <p>During an active examination session:</p>
+                        <ol>
+                            <li>The assigned Invigilator opens the <strong>Exam Operations Sheet</strong> for their hall.</li>
+                            <li>For each seated student, the invigilator verifies candidate identity via physical ID or simulated Biometric/Face check.</li>
+                            <li>The invigilator marks candidate status as <strong>Present</strong>, <strong>Absent</strong>, or <strong>Malpractice</strong>.</li>
+                            <li>Timestamps and the verifying invigilator's faculty ID are recorded into the audit trail.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Q7: AI proctoring alerts -->
+            <div class="accordion-item bg-card border-subtle mb-3 rounded overflow-hidden faq-card" data-keywords="ai proctoring alerts vision detection simulated confidence heuristics">
+                <h3 class="accordion-header" id="headingSeven">
+                    <button class="accordion-button collapsed bg-transparent text-primary fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faqSeven" aria-expanded="false" aria-controls="faqSeven">
+                        <i class="bi bi-cpu-fill text-accent me-2"></i> What do AI proctoring alerts mean?
+                    </button>
+                </h3>
+                <div id="faqSeven" class="accordion-collapse collapse" aria-labelledby="headingSeven" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-body-secondary pt-0">
+                        <p>In this academic DBMS implementation, the AI Proctoring engine operates as a <strong>heuristic event simulation and surveillance management pipeline</strong>:</p>
+                        <ul>
+                            <li>Flags patterns such as <em>Mobile Phone Detected</em>, <em>Multiple Persons Detected</em>, <em>Looking Away</em>, and <em>Suspicious Movement</em>.</li>
+                            <li>Each alert includes a confidence score (e.g., 75%–98%) and the exact timestamp of detection.</li>
+                            <li>Invigilators and Administrators can review pending alerts, inspect student seat details, and mark them as <strong>Reviewed</strong> or <strong>Dismissed</strong>.</li>
+                            <li><em>Note:</em> The current implementation utilizes algorithmic simulation data rather than proprietary continuous video cloud pipelines.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Q8: Invigilator reporting an incident -->
+            <div class="accordion-item bg-card border-subtle mb-3 rounded overflow-hidden faq-card" data-keywords="incident report violation invigilator disciplinary log">
+                <h3 class="accordion-header" id="headingEight">
+                    <button class="accordion-button collapsed bg-transparent text-primary fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faqEight" aria-expanded="false" aria-controls="faqEight">
+                        <i class="bi bi-flag-fill text-accent me-2"></i> How can an Invigilator report an incident?
+                    </button>
+                </h3>
+                <div id="faqEight" class="accordion-collapse collapse" aria-labelledby="headingEight" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-body-secondary pt-0">
+                        <p>When an invigilator observes an examination rule violation or technical emergency:</p>
+                        <ol>
+                            <li>Navigate to <strong>Invigilator Panel &rarr; Incidents</strong>.</li>
+                            <li>Fill out the Incident Log form specifying the exam, candidate registration number, incident type (e.g. Unauthorized Material, Misconduct, Tech Failure), and severity (Low, Medium, High, Critical).</li>
+                            <li>Submit the record. The incident is permanently logged and immediately elevated to the Admin incident overview.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Q9: Login troubleshooting -->
+            <div class="accordion-item bg-card border-subtle mb-3 rounded overflow-hidden faq-card" data-keywords="cannot login trouble forgot password locked error reset">
+                <h3 class="accordion-header" id="headingNine">
+                    <button class="accordion-button collapsed bg-transparent text-primary fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faqNine" aria-expanded="false" aria-controls="faqNine">
+                        <i class="bi bi-exclamation-triangle-fill text-accent me-2"></i> What should a user do if they cannot log in?
+                    </button>
+                </h3>
+                <div id="faqNine" class="accordion-collapse collapse" aria-labelledby="headingNine" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-body-secondary pt-0">
+                        <p>If you experience difficulty signing into ExamGuard AI:</p>
+                        <ul>
+                            <li><strong>Verify credentials:</strong> Ensure your registration number or faculty username is spelled correctly. Passwords are case-sensitive.</li>
+                            <li><strong>Use Demo Profiles:</strong> If testing the prototype, use the quick-fill demo buttons located on the login card.</li>
+                            <li><strong>Account Deactivation:</strong> If your account has been placed into Inactive status by an administrator, contact the Examination Cell.</li>
+                            <li><strong>Session Issues:</strong> Ensure browser cookies and local storage are enabled for this site.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Right Sidebar: Support Desk Info -->
+    <div class="col-lg-4" id="support-contacts">
+        <div class="card bg-card border-subtle shadow-sm mb-4">
+            <div class="card-header bg-transparent border-subtle py-3">
+                <h5 class="mb-0"><i class="bi bi-headset text-accent me-2"></i> Examination Support Desk</h5>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted mb-3">For institutional examination disputes, hall ticket discrepancies, or emergency login assistance, contact the internal university cell:</p>
+
+                <div class="d-flex align-items-start mb-3">
+                    <i class="bi bi-geo-alt-fill text-accent fs-5 me-3"></i>
+                    <div>
+                        <strong>Office Location</strong><br>
+                        <span class="text-muted small">Examination Control Division, Room 204<br>Silver Jubilee Tower, Academic Campus</span>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-start mb-3">
+                    <i class="bi bi-clock-fill text-accent fs-5 me-3"></i>
+                    <div>
+                        <strong>Operating Hours</strong><br>
+                        <span class="text-muted small">Monday – Friday: 08:30 – 17:30 IST<br>Exam Days: 07:30 – 18:30 IST</span>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-start mb-3">
+                    <i class="bi bi-envelope-fill text-accent fs-5 me-3"></i>
+                    <div>
+                        <strong>Internal Helpdesk</strong><br>
+                        <span class="text-muted small">examcell-support@internal.univ.edu</span>
+                    </div>
+                </div>
+
+                <div class="alert alert-info py-2 px-3 small border-0 mb-0">
+                    <i class="bi bi-info-circle me-1"></i> Please have your Registration Number or Faculty ID ready when visiting the support desk.
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-card border-subtle shadow-sm p-3">
+            <h6 class="fw-bold mb-2"><i class="bi bi-info-circle-fill text-accent me-2"></i> System Information</h6>
+            <ul class="list-unstyled small text-muted mb-0">
+                <li class="mb-1"><strong>Platform:</strong> ExamGuard AI v2.4.0</li>
+                <li class="mb-1"><strong>Engine:</strong> Flask / MySQL Relational Schema</li>
+                <li class="mb-1"><strong>Last Updated:</strong> October 13, 2026</li>
+                <li><strong>Environment:</strong> University Case Study Project</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // FAQ quick search filter
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('faqSearchInput');
+        const clearBtn = document.getElementById('faqClearBtn');
+        const faqCards = document.querySelectorAll('.faq-card');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const query = this.value.trim().toLowerCase();
+                faqCards.forEach(function(card) {
+                    const text = card.textContent.toLowerCase();
+                    const keywords = card.getAttribute('data-keywords') || '';
+                    if (!query || text.includes(query) || keywords.toLowerCase().includes(query)) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function() {
+                    searchInput.value = '';
+                    searchInput.dispatchEvent(new Event('input'));
+                });
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Exam Summary Report{% endblock %}
+
+{% block head %}
+<style>
+    @media print {
+        .sidebar, .navbar, .btn, .no-print { display: none !important; }
+        .main-content { margin-left: 0 !important; padding: 0 !important; }
+        body { background-color: white !important; color: black !important; }
+        .table { border-color: #000 !important; }
+        .table th, .table td { color: black !important; border-color: #000 !important; }
+        .table-dark { background-color: transparent !important; }
+    }
+</style>
+{% endblock %}
+
+{% block sidebar %}
+    {% include 'admin/_sidebar.html' ignore missing %}
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2><i class="bi bi-file-earmark-spreadsheet me-2"></i> Exam Summary Report</h2>
+        <p class="text-muted mb-0">
+            System-wide examination overview
+            <span class="mx-2">·</span>
+            <small class="text-info"><i class="bi bi-clock me-1"></i>Report Generated: Active Session</small>
+        </p>
+    </div>
+    <div class="no-print d-flex gap-2">
+        <button onclick="window.print()" class="btn btn-primary"><i class="bi bi-printer me-1"></i> Print</button>
+        <a href="{{ url_for('admin_reports.exam_summary', export='csv') }}" class="btn btn-success"><i class="bi bi-download me-1"></i> CSV</a>
+        <a href="{{ url_for('admin_reports.index') }}" class="btn btn-outline-light">Back</a>
+    </div>
+</div>
+
+<div class="card bg-card border-0 print-border">
+    <div class="card-body p-0">
+        <table class="table table-dark table-striped table-bordered mb-0 table-sticky">
+            <thead>
+                <tr>
+                    <th>Exam ID</th>
+                    <th>Subject</th>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th>Location</th>
+                    <th>Total Allocated</th>
+                    <th>AI Alerts</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                <tr>
+                    <td>
+                        <span class="font-monospace">#{{ row.exam_id }}</span>
+                        <button type="button" class="btn-copy ms-1 no-print" data-copy="{{ row.exam_id }}" title="Copy Exam ID" aria-label="Copy Exam ID">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-1">
+                            <strong class="font-monospace">{{ row.subject_code }}</strong>
+                            <button type="button" class="btn-copy no-print" data-copy="{{ row.subject_code }}" title="Copy subject code" aria-label="Copy subject code">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted">{{ row.subject_name }}</small>
+                    </td>
+                    <td>{{ row.exam_type }}</td>
+                    <td>{{ row.exam_date }}</td>
+                    <td>{{ row.building }} {{ row.room_number }}</td>
+                    <td>{{ row.total_allocated }}</td>
+                    <td>
+                        {% if row.total_alerts > 0 %}
+                            <span class="text-danger fw-bold">{{ row.total_alerts }}</span>
+                        {% else %}
+                            0
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

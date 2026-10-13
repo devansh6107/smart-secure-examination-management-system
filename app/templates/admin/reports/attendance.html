@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance Report{% endblock %}
+
+{% block head %}
+<style>
+    @media print {
+        .sidebar, .navbar, .btn, .no-print { display: none !important; }
+        .main-content { margin-left: 0 !important; padding: 0 !important; }
+        body { background-color: white !important; color: black !important; }
+        .table { border-color: #000 !important; }
+        .table th, .table td { color: black !important; border-color: #000 !important; }
+        .table-dark { background-color: transparent !important; }
+    }
+</style>
+{% endblock %}
+
+{% block sidebar %}
+    {% include 'admin/_sidebar.html' ignore missing %}
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2><i class="bi bi-person-lines-fill me-2"></i> Attendance Report</h2>
+        <p class="text-muted mb-0">
+            Exam: <strong>{{ exam.subject_code }}</strong> {{ exam.exam_type }} ({{ exam.exam_date }})
+            <span class="mx-2">·</span>
+            <small class="text-info"><i class="bi bi-clock me-1"></i>Report Generated: Active Session</small>
+        </p>
+    </div>
+    <div class="no-print d-flex gap-2">
+        <button onclick="window.print()" class="btn btn-primary"><i class="bi bi-printer me-1"></i> Print</button>
+        <a href="{{ url_for('admin_reports.attendance', exam_id=exam.exam_id, export='csv') }}" class="btn btn-success"><i class="bi bi-download me-1"></i> CSV</a>
+        <a href="{{ url_for('admin_reports.index') }}" class="btn btn-outline-light">Back</a>
+    </div>
+</div>
+
+<div class="card bg-card border-0 print-border">
+    <div class="card-body p-0">
+        <table class="table table-dark table-striped table-bordered mb-0 table-sticky">
+            <thead>
+                <tr>
+                    <th>Seat Number</th>
+                    <th>Registration No</th>
+                    <th>Student Name</th>
+                    <th>Attendance Status</th>
+                    <th>Check-in Time</th>
+                    <th>Authentication</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                <tr>
+                    <td>
+                        <strong class="font-monospace">{{ row.seat_number }}</strong>
+                        <button type="button" class="btn-copy ms-1 no-print" data-copy="{{ row.seat_number }}" title="Copy seat number" aria-label="Copy seat number">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <span class="font-monospace">{{ row.registration_no }}</span>
+                        <button type="button" class="btn-copy ms-1 no-print" data-copy="{{ row.registration_no }}" title="Copy registration number" aria-label="Copy registration number">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </td>
+                    <td>{{ row.student_name }}</td>
+                    <td>
+                        {% if row.attendance_status == 'Present' %}
+                            <span class="text-success fw-bold">Present</span>
+                        {% elif row.attendance_status == 'Absent' %}
+                            <span class="text-danger fw-bold">Absent</span>
+                        {% elif row.attendance_status == 'Late' %}
+                            <span class="text-warning fw-bold">Late</span>
+                        {% else %}
+                            Pending
+                        {% endif %}
+                    </td>
+                    <td>{{ row.check_in_time if row.check_in_time else '-' }}</td>
+                    <td>
+                        {% if row.verification_status %}
+                            {{ row.method }} ({{ row.verification_status }})
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

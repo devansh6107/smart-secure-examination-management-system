@@ -2,6 +2,11 @@
 .env
 *.env
 !.env.example
+*.pem
+*.crt
+*.cer
+*.key
+ca.pem
 
 # ──── Python & Virtual Environments ────
 .venv/

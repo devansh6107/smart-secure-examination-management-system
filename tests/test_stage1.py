@@ -72,7 +72,7 @@ class TestDatabaseConnection:
         cursor = conn.cursor()
         cursor.execute(
             "SELECT TABLE_NAME FROM information_schema.VIEWS "
-            "WHERE TABLE_SCHEMA = 'exam_management_db'"
+            "WHERE TABLE_SCHEMA = DATABASE()"
         )
         views = [row[0] for row in cursor.fetchall()]
         cursor.close()

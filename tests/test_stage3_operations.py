@@ -50,9 +50,12 @@ class TestOperations:
         
         students = get_all_students()
         
-        # Register 5 students for exam 4
+        room_id = 4
+        # Register 5 students for exam 4 and assign room 4 (capacity 4)
         conn = get_db_connection()
         cursor = conn.cursor()
+        cursor.execute("DELETE FROM SeatAllocation WHERE exam_id = %s", (exam_id,))
+        cursor.execute("UPDATE Exam SET room_id = %s WHERE exam_id = %s", (room_id, exam_id))
         for i in range(5):
             cursor.execute("INSERT IGNORE INTO ExamRegistration (student_id, exam_id) VALUES (%s, %s)", (students[i]['student_id'], exam_id))
         conn.commit()

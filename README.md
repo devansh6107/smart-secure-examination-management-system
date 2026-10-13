@@ -245,7 +245,31 @@ The application runs locally on:
 
 ---
 
-## 13. Running Automated Tests
+## 13. Cloud & Vercel Deployment
+
+The application supports zero-config deployment to **Vercel** serverless with cloud MySQL (e.g., **Aiven**):
+
+### 1. Database Connection & TLS
+Configure your Aiven / cloud MySQL environment variables in Vercel project settings:
+```ini
+DB_HOST=exam-management-db-devanshghosh6107-9509.e.aivencloud.com
+DB_PORT=18298
+DB_NAME=defaultdb
+DB_USER=avnadmin
+DB_PASSWORD=<your_aiven_password>
+DB_SSL_REQUIRED=True
+DB_SSL_VERIFY_CERT=True
+SECRET_KEY=<your_production_secret_key>
+```
+
+### 2. Vercel Configuration
+- Entrypoint: [`api/index.py`](api/index.py) (exposes WSGI `app`)
+- Routing: [`vercel.json`](vercel.json) routes incoming requests directly to the WSGI application
+- Database migrations: Run `python3 init_database.py` once to populate schema, views, procedures, and seed data.
+
+---
+
+## 14. Running Automated Tests
 
 Run the complete automated test suite using pytest:
 ```bash

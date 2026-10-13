@@ -27,6 +27,11 @@ class Config:
     DB_PASSWORD = os.getenv('DB_PASSWORD', '')
     DB_NAME = os.getenv('DB_NAME', 'exam_management_db')
 
+    # SSL/TLS Database Configuration
+    DB_SSL_REQUIRED = os.getenv('DB_SSL_REQUIRED', 'False').lower() in ('true', '1')
+    DB_SSL_CA = os.getenv('DB_SSL_CA', '')
+    DB_SSL_VERIFY_CERT = os.getenv('DB_SSL_VERIFY_CERT', 'True').lower() in ('true', '1')
+
     # Session
     SESSION_TYPE = 'filesystem'
     PERMANENT_SESSION_LIFETIME = 3600  # 1 hour

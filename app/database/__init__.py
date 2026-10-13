@@ -42,26 +42,29 @@ def get_connection_params():
     if Config.DB_SSL_REQUIRED or Config.DB_SSL_CA:
         params['ssl_disabled'] = False
         ca_path = Config.DB_SSL_CA
+        valid_ca = False
         if ca_path:
             if os.path.isfile(ca_path):
                 params['ssl_ca'] = ca_path
-                params['ssl_verify_cert'] = Config.DB_SSL_VERIFY_CERT
-                params['ssl_verify_identity'] = Config.DB_SSL_VERIFY_CERT
+                valid_ca = True
             elif '-----BEGIN CERTIFICATE-----' in ca_path:
                 temp_ca_path = os.path.join(tempfile.gettempdir(), 'aiven_ca.pem')
                 try:
                     with open(temp_ca_path, 'w') as f:
                         f.write(ca_path)
                     params['ssl_ca'] = temp_ca_path
-                    params['ssl_verify_cert'] = Config.DB_SSL_VERIFY_CERT
-                    params['ssl_verify_identity'] = Config.DB_SSL_VERIFY_CERT
+                    valid_ca = True
                 except Exception as e:
                     print(f"[DB WARNING] Could not write temporary CA cert: {e}")
             else:
                 print(f"[DB WARNING] DB_SSL_CA file not found: {ca_path}")
+
+        if valid_ca and Config.DB_SSL_VERIFY_CERT:
+            params['ssl_verify_cert'] = True
+            params['ssl_verify_identity'] = True
         else:
-            # SSL required, but no specific CA certificate file configured
             params['ssl_verify_cert'] = False
+            params['ssl_verify_identity'] = False
 
     return params
 

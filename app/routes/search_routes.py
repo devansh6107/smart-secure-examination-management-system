@@ -53,3 +53,35 @@ def api_search():
         'total': len(results),
         'results': results
     })
+
+
+@search_bp.route('/api/health')
+def api_health():
+    """Diagnostic health endpoint for inspecting database connectivity."""
+    from app.config import Config
+    from app.database import get_db_connection
+    health = {
+        'status': 'unknown',
+        'db_host': Config.DB_HOST,
+        'db_port': Config.DB_PORT,
+        'db_name': Config.DB_NAME,
+        'db_user': Config.DB_USER,
+        'ssl_required': Config.DB_SSL_REQUIRED,
+        'ssl_ca_configured': bool(Config.DB_SSL_CA),
+    }
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1")
+        cursor.fetchone()
+        cursor.close()
+        conn.close()
+        health['status'] = 'healthy'
+        health['database_connected'] = True
+        return jsonify(health), 200
+    except Exception as e:
+        health['status'] = 'unhealthy'
+        health['database_connected'] = False
+        health['error'] = f"{type(e).__name__}: {str(e)}"
+        return jsonify(health), 500
+

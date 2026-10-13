@@ -37,7 +37,9 @@ def login():
         try:
             user = authenticate_user(username, password)
         except Exception as e:
-            flash('Database connection error. Please try again.', 'danger')
+            import logging
+            logging.error(f"[AUTH ERROR] Database connection failed: {e}", exc_info=True)
+            flash(f'Database connection error: {str(e)}', 'danger')
             return render_template('auth/login.html')
 
         if user is None:

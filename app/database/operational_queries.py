@@ -497,35 +497,38 @@ def get_admin_dashboard_full():
         cursor = conn.cursor(dictionary=True)
         stats = {}
 
-        # ── Stat Cards ──
-        cursor.execute("SELECT COUNT(*) AS cnt FROM Student")
-        stats['total_students'] = cursor.fetchone()['cnt']
+        # ── Stat Cards (Consolidated into 1 network round-trip) ──
+        cursor.execute('''
+            SELECT 
+                (SELECT COUNT(*) FROM Student) AS total_students,
+                (SELECT COUNT(*) FROM Exam WHERE status IN ('Scheduled', 'Ongoing')) AS active_exams,
+                (SELECT COUNT(*) FROM ExamRoom) AS total_rooms,
+                (SELECT COUNT(*) FROM AIAlert WHERE status = 'Pending') AS pending_alerts,
+                (SELECT COUNT(*) FROM Incident) AS total_incidents,
+                COALESCE(SUM(CASE WHEN status='Present' THEN 1 ELSE 0 END), 0) AS present,
+                COALESCE(SUM(CASE WHEN status='Absent'  THEN 1 ELSE 0 END), 0) AS absent,
+                COALESCE(SUM(CASE WHEN status='Late'    THEN 1 ELSE 0 END), 0) AS late,
+                COUNT(*) AS total_attendance
+            FROM Attendance
+        ''')
+        row = cursor.fetchone() or {}
+        stats['total_students'] = row.get('total_students', 0)
+        stats['active_exams'] = row.get('active_exams', 0)
+        stats['total_rooms'] = row.get('total_rooms', 0)
+        stats['pending_alerts'] = row.get('pending_alerts', 0)
+        stats['total_incidents'] = row.get('total_incidents', 0)
 
-        cursor.execute("SELECT COUNT(*) AS cnt FROM Exam WHERE status IN ('Scheduled', 'Ongoing')")
-        stats['active_exams'] = cursor.fetchone()['cnt']
-
-        cursor.execute("SELECT COUNT(*) AS cnt FROM ExamRoom")
-        stats['total_rooms'] = cursor.fetchone()['cnt']
-
-        cursor.execute("SELECT COUNT(*) AS cnt FROM AIAlert WHERE status = 'Pending'")
-        stats['pending_alerts'] = cursor.fetchone()['cnt']
-
-        cursor.execute("SELECT COUNT(*) AS cnt FROM Incident")
-        stats['total_incidents'] = cursor.fetchone()['cnt']
-
-        # Attendance percentage
-        cursor.execute(
-            "SELECT "
-            "  COALESCE(SUM(CASE WHEN status='Present' THEN 1 ELSE 0 END),0) AS present, "
-            "  COALESCE(SUM(CASE WHEN status='Absent'  THEN 1 ELSE 0 END),0) AS absent, "
-            "  COALESCE(SUM(CASE WHEN status='Late'    THEN 1 ELSE 0 END),0) AS late, "
-            "  COUNT(*) AS total "
-            "FROM Attendance"
-        )
-        att = cursor.fetchone()
-        stats['attendance'] = att
-        total_att = att['total'] if att['total'] else 1
-        stats['attendance_pct'] = float(round(((att['present'] + att['late']) / total_att) * 100, 1)) if total_att > 0 else 0.0
+        present = int(row.get('present', 0))
+        absent = int(row.get('absent', 0))
+        late = int(row.get('late', 0))
+        total_att = int(row.get('total_attendance', 0))
+        stats['attendance'] = {
+            'present': present,
+            'absent': absent,
+            'late': late,
+            'total': total_att
+        }
+        stats['attendance_pct'] = float(round(((present + late) / total_att) * 100, 1)) if total_att > 0 else 0.0
 
         # ── Chart Data: Attendance by Exam ──
         cursor.execute('''

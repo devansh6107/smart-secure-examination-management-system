@@ -22,7 +22,7 @@ class ProctoringService:
       - simulate_batch()   → batch of random alerts for demo
     """
 
-    ALERT_TYPES = ['Phone Detected', 'Multiple Faces', 'Suspicious Movement']
+    ALERT_TYPES = ['Phone Detected', 'Suspicious Movement']
 
     @staticmethod
     def simulate_alert(allocation_id, alert_type, confidence=None):
@@ -31,7 +31,7 @@ class ProctoringService:
 
         Parameters:
             allocation_id (int): The seat allocation to flag.
-            alert_type (str): One of 'Phone Detected', 'Multiple Faces', 'Suspicious Movement'.
+            alert_type (str): One of 'Phone Detected', 'Suspicious Movement'.
             confidence (float|None): 0.00–1.00. If None, a random value in [0.50, 0.99] is used.
 
         Returns:

@@ -126,10 +126,8 @@
                         <td>
                             {% if a.alert_type == 'Phone Detected' %}
                                 <span class="badge bg-danger"><i class="bi bi-phone me-1"></i>{{ a.alert_type }}</span>
-                            {% elif a.alert_type == 'Multiple Faces' %}
-                                <span class="badge bg-warning text-dark"><i class="bi bi-people me-1"></i>{{ a.alert_type }}</span>
                             {% else %}
-                                <span class="badge bg-info text-dark"><i class="bi bi-exclamation-triangle me-1"></i>{{ a.alert_type }}</span>
+                                <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle me-1"></i>{{ a.alert_type }}</span>
                             {% endif %}
                         </td>
                         <td>

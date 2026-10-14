@@ -365,7 +365,7 @@ def get_all_alerts(exam_filter=None, type_filter=None, status_filter=None):
         if exam_filter:
             query += " AND e.exam_id = %s"
             params.append(int(exam_filter))
-        if type_filter and type_filter in ('Phone Detected', 'Multiple Faces', 'Suspicious Movement'):
+        if type_filter and type_filter in ('Phone Detected', 'Suspicious Movement'):
             query += " AND al.alert_type = %s"
             params.append(type_filter)
         if status_filter and status_filter in ('Pending', 'Reviewed', 'Ignored'):

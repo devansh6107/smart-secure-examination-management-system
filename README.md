@@ -9,7 +9,7 @@ An enterprise-grade, end-to-end web application built using **Flask, MySQL, HTML
 Traditional university examination management suffers from fragmented workflows:
 - **Manual Seat Allocation:** Susceptible to human error, double-booking, and inefficient room utilization.
 - **Attendance Bottlenecks:** Paper rosters delay student verification and impede real-time absent/late tracking.
-- **Malpractice Vulnerabilities:** Difficult for individual invigilators in large halls to detect unauthorized devices, multiple faces, or abnormal movements.
+- **Malpractice Vulnerabilities:** Difficult for individual invigilators in large halls to detect unauthorized devices, unauthorized notes, or abnormal movements.
 - **Decentralized Records:** Hall tickets, seating allocations, incident reports, and post-exam statistics remain disconnected across administrative offices.
 
 ---
@@ -18,7 +18,7 @@ Traditional university examination management suffers from fragmented workflows:
 
 1. **Automate Seating Allocation:** Implement a deterministic, collision-free allocation algorithm across designated halls without capacity overflow.
 2. **Streamline Role-Based Workflows:** Deliver dedicated portals for Administrators, Invigilators, and Students.
-3. **Simulate Intelligent Proctoring:** Provide a modular heuristic AI proctoring engine that flags suspicious activities (e.g., cell phone usage, face absence/duplication, suspicious movement).
+3. **Simulate Intelligent Proctoring:** Provide a modular heuristic AI proctoring engine that flags suspicious activities in physical halls (e.g., cell phone usage, unauthorized materials, suspicious posture or movements).
 4. **Digitize Real-Time Attendance:** Enable instant invigilator roll-call, hall ticket barcode/registration verification, and incident documentation.
 5. **Ensure Robust Accessibility & UI/UX:** Built with light/dark theme switching, responsive layouts, print-ready hall tickets, keyboard accessibility, and site search.
 

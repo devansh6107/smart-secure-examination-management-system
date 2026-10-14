@@ -407,7 +407,7 @@ WHERE s.registration_no = '22BCE1002'
                     WHERE sub.subject_code = 'BACSE202' AND e.exam_type = 'CAT2');
 
 INSERT INTO AIAlert (allocation_id, alert_type, confidence, status)
-SELECT sa.allocation_id, 'Multiple Faces', 0.72, 'Ignored'
+SELECT sa.allocation_id, 'Suspicious Movement', 0.72, 'Ignored'
 FROM SeatAllocation sa
 JOIN Student s ON sa.student_id = s.student_id
 WHERE s.registration_no = '22BCE1003'

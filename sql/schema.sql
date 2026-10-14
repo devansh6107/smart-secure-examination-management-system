@@ -241,7 +241,7 @@ CREATE TABLE Authentication (
 CREATE TABLE AIAlert (
     alert_id    INT             PRIMARY KEY AUTO_INCREMENT,
     allocation_id INT           NOT NULL,
-    alert_type  ENUM('Phone Detected', 'Multiple Faces', 'Suspicious Movement') NOT NULL,
+    alert_type  ENUM('Phone Detected', 'Suspicious Movement') NOT NULL,
     confidence  DECIMAL(5,2),
     alert_time  TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
     status      ENUM('Pending', 'Reviewed', 'Ignored') DEFAULT 'Pending',

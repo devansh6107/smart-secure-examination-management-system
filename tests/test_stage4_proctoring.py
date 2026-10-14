@@ -108,7 +108,7 @@ class TestAlertManagement(unittest.TestCase):
         if not row:
             self.skipTest("No allocations.")
 
-        alert_id = ProctoringService.simulate_alert(row['allocation_id'], 'Multiple Faces')
+        alert_id = ProctoringService.simulate_alert(row['allocation_id'], 'Suspicious Movement')
         review_alert(alert_id)
 
         conn = get_db_connection()

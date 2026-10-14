@@ -59,27 +59,27 @@ INSERT INTO User (username, email, password_hash, role) VALUES
 
 -- ── Students (linked to User by username lookup) ──
 INSERT INTO Student (user_id, registration_no, name, department_id, year, section, phone)
-SELECT u.user_id, '22BCE1001', 'Rahul Kumar',
+SELECT u.user_id, '23BCE1001', 'Rahul Kumar',
        (SELECT department_id FROM Department WHERE department_code = 'CSE'), 2, 'A', '9876543210'
 FROM User u WHERE u.username = 'rahul.kumar';
 
 INSERT INTO Student (user_id, registration_no, name, department_id, year, section, phone)
-SELECT u.user_id, '22BCE1002', 'Priya Sharma',
+SELECT u.user_id, '23BCE1002', 'Priya Sharma',
        (SELECT department_id FROM Department WHERE department_code = 'CSE'), 2, 'A', '9876543211'
 FROM User u WHERE u.username = 'priya.sharma';
 
 INSERT INTO Student (user_id, registration_no, name, department_id, year, section, phone)
-SELECT u.user_id, '22BEC1001', 'Arjun Patel',
+SELECT u.user_id, '25BEC1001', 'Arjun Patel',
        (SELECT department_id FROM Department WHERE department_code = 'ECE'), 2, 'B', '9876543212'
 FROM User u WHERE u.username = 'arjun.patel';
 
 INSERT INTO Student (user_id, registration_no, name, department_id, year, section, phone)
-SELECT u.user_id, '22BCE1003', 'Neha Gupta',
+SELECT u.user_id, '24BCE1003', 'Neha Gupta',
        (SELECT department_id FROM Department WHERE department_code = 'CSE'), 2, 'B', '9876543213'
 FROM User u WHERE u.username = 'neha.gupta';
 
 INSERT INTO Student (user_id, registration_no, name, department_id, year, section, phone)
-SELECT u.user_id, '22BME1001', 'Vikram Singh',
+SELECT u.user_id, '26BME1001', 'Vikram Singh',
        (SELECT department_id FROM Department WHERE department_code = 'MECH'), 2, 'A', '9876543214'
 FROM User u WHERE u.username = 'vikram.singh';
 
@@ -212,21 +212,21 @@ SELECT s.student_id,
        (SELECT e.exam_id FROM Exam e
         JOIN Subject sub ON e.subject_id = sub.subject_id
         WHERE sub.subject_code = 'BACSE202' AND e.exam_type = 'CAT1' AND e.exam_date = '2026-10-15')
-FROM Student s WHERE s.registration_no = '22BCE1001';
+FROM Student s WHERE s.registration_no = '23BCE1001';
 
 INSERT INTO ExamRegistration (student_id, exam_id)
 SELECT s.student_id,
        (SELECT e.exam_id FROM Exam e
         JOIN Subject sub ON e.subject_id = sub.subject_id
         WHERE sub.subject_code = 'BACSE202' AND e.exam_type = 'CAT1' AND e.exam_date = '2026-10-15')
-FROM Student s WHERE s.registration_no = '22BCE1002';
+FROM Student s WHERE s.registration_no = '23BCE1002';
 
 INSERT INTO ExamRegistration (student_id, exam_id)
 SELECT s.student_id,
        (SELECT e.exam_id FROM Exam e
         JOIN Subject sub ON e.subject_id = sub.subject_id
         WHERE sub.subject_code = 'BACSE202' AND e.exam_type = 'CAT1' AND e.exam_date = '2026-10-15')
-FROM Student s WHERE s.registration_no = '22BCE1003';
+FROM Student s WHERE s.registration_no = '24BCE1003';
 
 -- Rahul, Priya register for OS CAT1
 INSERT INTO ExamRegistration (student_id, exam_id)
@@ -234,14 +234,14 @@ SELECT s.student_id,
        (SELECT e.exam_id FROM Exam e
         JOIN Subject sub ON e.subject_id = sub.subject_id
         WHERE sub.subject_code = 'BACSE106' AND e.exam_type = 'CAT1')
-FROM Student s WHERE s.registration_no = '22BCE1001';
+FROM Student s WHERE s.registration_no = '23BCE1001';
 
 INSERT INTO ExamRegistration (student_id, exam_id)
 SELECT s.student_id,
        (SELECT e.exam_id FROM Exam e
         JOIN Subject sub ON e.subject_id = sub.subject_id
         WHERE sub.subject_code = 'BACSE106' AND e.exam_type = 'CAT1')
-FROM Student s WHERE s.registration_no = '22BCE1002';
+FROM Student s WHERE s.registration_no = '23BCE1002';
 
 -- Arjun registers for DSP CAT1
 INSERT INTO ExamRegistration (student_id, exam_id)
@@ -249,7 +249,7 @@ SELECT s.student_id,
        (SELECT e.exam_id FROM Exam e
         JOIN Subject sub ON e.subject_id = sub.subject_id
         WHERE sub.subject_code = 'BAEEE101' AND e.exam_type = 'CAT1')
-FROM Student s WHERE s.registration_no = '22BEC1001';
+FROM Student s WHERE s.registration_no = '25BEC1001';
 
 -- Rahul, Neha register for CN CAT1
 INSERT INTO ExamRegistration (student_id, exam_id)
@@ -257,14 +257,14 @@ SELECT s.student_id,
        (SELECT e.exam_id FROM Exam e
         JOIN Subject sub ON e.subject_id = sub.subject_id
         WHERE sub.subject_code = 'BACSE203' AND e.exam_type = 'CAT1')
-FROM Student s WHERE s.registration_no = '22BCE1001';
+FROM Student s WHERE s.registration_no = '23BCE1001';
 
 INSERT INTO ExamRegistration (student_id, exam_id)
 SELECT s.student_id,
        (SELECT e.exam_id FROM Exam e
         JOIN Subject sub ON e.subject_id = sub.subject_id
         WHERE sub.subject_code = 'BACSE203' AND e.exam_type = 'CAT1')
-FROM Student s WHERE s.registration_no = '22BCE1003';
+FROM Student s WHERE s.registration_no = '24BCE1003';
 
 -- Rahul, Priya, Neha registered for DBMS CAT2 (initially Scheduled, updated to Completed at end)
 INSERT INTO ExamRegistration (student_id, exam_id)
@@ -272,21 +272,21 @@ SELECT s.student_id,
        (SELECT e.exam_id FROM Exam e
         JOIN Subject sub ON e.subject_id = sub.subject_id
         WHERE sub.subject_code = 'BACSE202' AND e.exam_type = 'CAT2')
-FROM Student s WHERE s.registration_no = '22BCE1001';
+FROM Student s WHERE s.registration_no = '23BCE1001';
 
 INSERT INTO ExamRegistration (student_id, exam_id)
 SELECT s.student_id,
        (SELECT e.exam_id FROM Exam e
         JOIN Subject sub ON e.subject_id = sub.subject_id
         WHERE sub.subject_code = 'BACSE202' AND e.exam_type = 'CAT2')
-FROM Student s WHERE s.registration_no = '22BCE1002';
+FROM Student s WHERE s.registration_no = '23BCE1002';
 
 INSERT INTO ExamRegistration (student_id, exam_id)
 SELECT s.student_id,
        (SELECT e.exam_id FROM Exam e
         JOIN Subject sub ON e.subject_id = sub.subject_id
         WHERE sub.subject_code = 'BACSE202' AND e.exam_type = 'CAT2')
-FROM Student s WHERE s.registration_no = '22BCE1003';
+FROM Student s WHERE s.registration_no = '24BCE1003';
 
 -- ── Seat Allocations (for the completed DBMS CAT2 exam) ──
 INSERT INTO SeatAllocation (student_id, exam_id, seat_id, allocation_status)
@@ -299,7 +299,7 @@ SELECT s.student_id,
         WHERE r.room_number = '201' AND r.building = 'Silver Jubilee Tower'
               AND se.seat_number = 'R1C1'),
        'Allocated'
-FROM Student s WHERE s.registration_no = '22BCE1001';
+FROM Student s WHERE s.registration_no = '23BCE1001';
 
 INSERT INTO SeatAllocation (student_id, exam_id, seat_id, allocation_status)
 SELECT s.student_id,
@@ -311,7 +311,7 @@ SELECT s.student_id,
         WHERE r.room_number = '201' AND r.building = 'Silver Jubilee Tower'
               AND se.seat_number = 'R1C3'),
        'Allocated'
-FROM Student s WHERE s.registration_no = '22BCE1002';
+FROM Student s WHERE s.registration_no = '23BCE1002';
 
 INSERT INTO SeatAllocation (student_id, exam_id, seat_id, allocation_status)
 SELECT s.student_id,
@@ -323,7 +323,7 @@ SELECT s.student_id,
         WHERE r.room_number = '201' AND r.building = 'Silver Jubilee Tower'
               AND se.seat_number = 'R2C1'),
        'Allocated'
-FROM Student s WHERE s.registration_no = '22BCE1003';
+FROM Student s WHERE s.registration_no = '24BCE1003';
 
 -- ── Attendance (for the completed exam allocations) ──
 INSERT INTO Attendance (allocation_id, check_in_time, status, verified_by)
@@ -331,7 +331,7 @@ SELECT sa.allocation_id, '2026-09-10 08:50:00', 'Present',
        (SELECT invigilator_id FROM Invigilator WHERE employee_id = 'FAC001')
 FROM SeatAllocation sa
 JOIN Student s ON sa.student_id = s.student_id
-WHERE s.registration_no = '22BCE1001'
+WHERE s.registration_no = '23BCE1001'
   AND sa.exam_id = (SELECT e.exam_id FROM Exam e
                     JOIN Subject sub ON e.subject_id = sub.subject_id
                     WHERE sub.subject_code = 'BACSE202' AND e.exam_type = 'CAT2');
@@ -341,7 +341,7 @@ SELECT sa.allocation_id, '2026-09-10 09:05:00', 'Late',
        (SELECT invigilator_id FROM Invigilator WHERE employee_id = 'FAC001')
 FROM SeatAllocation sa
 JOIN Student s ON sa.student_id = s.student_id
-WHERE s.registration_no = '22BCE1002'
+WHERE s.registration_no = '23BCE1002'
   AND sa.exam_id = (SELECT e.exam_id FROM Exam e
                     JOIN Subject sub ON e.subject_id = sub.subject_id
                     WHERE sub.subject_code = 'BACSE202' AND e.exam_type = 'CAT2');
@@ -351,7 +351,7 @@ SELECT sa.allocation_id, '2026-09-10 08:55:00', 'Present',
        (SELECT invigilator_id FROM Invigilator WHERE employee_id = 'FAC001')
 FROM SeatAllocation sa
 JOIN Student s ON sa.student_id = s.student_id
-WHERE s.registration_no = '22BCE1003'
+WHERE s.registration_no = '24BCE1003'
   AND sa.exam_id = (SELECT e.exam_id FROM Exam e
                     JOIN Subject sub ON e.subject_id = sub.subject_id
                     WHERE sub.subject_code = 'BACSE202' AND e.exam_type = 'CAT2');
@@ -362,7 +362,7 @@ INSERT INTO Authentication (allocation_id, method, verification_status)
 SELECT sa.allocation_id, 'QR', 'Success'
 FROM SeatAllocation sa
 JOIN Student s ON sa.student_id = s.student_id
-WHERE s.registration_no = '22BCE1001'
+WHERE s.registration_no = '23BCE1001'
   AND sa.exam_id = (SELECT e.exam_id FROM Exam e
                     JOIN Subject sub ON e.subject_id = sub.subject_id
                     WHERE sub.subject_code = 'BACSE202' AND e.exam_type = 'CAT2');
@@ -372,7 +372,7 @@ INSERT INTO Authentication (allocation_id, method, verification_status)
 SELECT sa.allocation_id, 'Face', 'Failed'
 FROM SeatAllocation sa
 JOIN Student s ON sa.student_id = s.student_id
-WHERE s.registration_no = '22BCE1002'
+WHERE s.registration_no = '23BCE1002'
   AND sa.exam_id = (SELECT e.exam_id FROM Exam e
                     JOIN Subject sub ON e.subject_id = sub.subject_id
                     WHERE sub.subject_code = 'BACSE202' AND e.exam_type = 'CAT2');
@@ -381,7 +381,7 @@ INSERT INTO Authentication (allocation_id, method, verification_status)
 SELECT sa.allocation_id, 'Manual', 'Success'
 FROM SeatAllocation sa
 JOIN Student s ON sa.student_id = s.student_id
-WHERE s.registration_no = '22BCE1002'
+WHERE s.registration_no = '23BCE1002'
   AND sa.exam_id = (SELECT e.exam_id FROM Exam e
                     JOIN Subject sub ON e.subject_id = sub.subject_id
                     WHERE sub.subject_code = 'BACSE202' AND e.exam_type = 'CAT2');
@@ -391,7 +391,7 @@ INSERT INTO Authentication (allocation_id, method, verification_status)
 SELECT sa.allocation_id, 'QR', 'Success'
 FROM SeatAllocation sa
 JOIN Student s ON sa.student_id = s.student_id
-WHERE s.registration_no = '22BCE1003'
+WHERE s.registration_no = '24BCE1003'
   AND sa.exam_id = (SELECT e.exam_id FROM Exam e
                     JOIN Subject sub ON e.subject_id = sub.subject_id
                     WHERE sub.subject_code = 'BACSE202' AND e.exam_type = 'CAT2');
@@ -401,7 +401,7 @@ INSERT INTO AIAlert (allocation_id, alert_type, confidence, status)
 SELECT sa.allocation_id, 'Phone Detected', 0.87, 'Reviewed'
 FROM SeatAllocation sa
 JOIN Student s ON sa.student_id = s.student_id
-WHERE s.registration_no = '22BCE1002'
+WHERE s.registration_no = '23BCE1002'
   AND sa.exam_id = (SELECT e.exam_id FROM Exam e
                     JOIN Subject sub ON e.subject_id = sub.subject_id
                     WHERE sub.subject_code = 'BACSE202' AND e.exam_type = 'CAT2');
@@ -410,7 +410,7 @@ INSERT INTO AIAlert (allocation_id, alert_type, confidence, status)
 SELECT sa.allocation_id, 'Suspicious Movement', 0.72, 'Ignored'
 FROM SeatAllocation sa
 JOIN Student s ON sa.student_id = s.student_id
-WHERE s.registration_no = '22BCE1003'
+WHERE s.registration_no = '24BCE1003'
   AND sa.exam_id = (SELECT e.exam_id FROM Exam e
                     JOIN Subject sub ON e.subject_id = sub.subject_id
                     WHERE sub.subject_code = 'BACSE202' AND e.exam_type = 'CAT2');
@@ -419,7 +419,7 @@ INSERT INTO AIAlert (allocation_id, alert_type, confidence, status)
 SELECT sa.allocation_id, 'Suspicious Movement', 0.65, 'Pending'
 FROM SeatAllocation sa
 JOIN Student s ON sa.student_id = s.student_id
-WHERE s.registration_no = '22BCE1001'
+WHERE s.registration_no = '23BCE1001'
   AND sa.exam_id = (SELECT e.exam_id FROM Exam e
                     JOIN Subject sub ON e.subject_id = sub.subject_id
                     WHERE sub.subject_code = 'BACSE202' AND e.exam_type = 'CAT2');
@@ -433,7 +433,7 @@ SELECT sa.allocation_id,
        'Phone confiscated. Warning issued. Report filed.'
 FROM SeatAllocation sa
 JOIN Student s ON sa.student_id = s.student_id
-WHERE s.registration_no = '22BCE1002'
+WHERE s.registration_no = '23BCE1002'
   AND sa.exam_id = (SELECT e.exam_id FROM Exam e
                     JOIN Subject sub ON e.subject_id = sub.subject_id
                     WHERE sub.subject_code = 'BACSE202' AND e.exam_type = 'CAT2');

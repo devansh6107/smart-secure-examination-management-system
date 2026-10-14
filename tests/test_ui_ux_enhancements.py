@@ -131,9 +131,9 @@ class TestFormErrorHandling:
             sess['role'] = 'ADMIN'
             sess['username'] = 'admin'
 
-        # Post duplicate registration number '22BCE1001' (already in seed data)
+        # Post duplicate registration number '23BCE1001' (already in seed data)
         res = client.post('/admin/students/add', data={
-            'registration_no': '22BCE1001',
+            'registration_no': '23BCE1001',
             'name': 'Duplicate Student Test',
             'department_id': '1',
             'year': '2',

@@ -4,34 +4,175 @@
 
 {% block content %}
 <div class="dashboard-header mb-4">
-    <a href="{{ url_for('admin_exams.index') }}" class="btn btn-sm btn-outline-secondary mb-3">
-        <i class="bi bi-arrow-left"></i> Back to Exams
-    </a>
-    <div class="d-flex justify-content-between align-items-center">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <a href="{{ url_for('admin_exams.index') }}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Exams
+        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin_registrations.index', exam_id=exam.exam_id) }}" class="btn btn-sm btn-outline-info">
+                <i class="bi bi-people me-1"></i> Manage Registrations ({{ registered_count }})
+            </a>
+            <a href="{{ url_for('admin_rooms.index') }}" class="btn btn-sm btn-outline-light">
+                <i class="bi bi-door-open me-1"></i> Manage Exam Rooms
+            </a>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
         <div>
-            <h2><i class="bi bi-grid-3x3 me-2"></i> Seating Chart</h2>
+            <h2><i class="bi bi-grid-3x3 me-2 text-primary"></i> Seating Chart & Student Allocation</h2>
             <p class="text-muted mb-0">
-                <span class="fw-bold">{{ exam.subject_code }}</span> ({{ exam.subject_name }}) - {{ exam.exam_type }} <br>
-                <small><i class="bi bi-geo-alt"></i> {{ exam.room_name }} &nbsp;|&nbsp; <i class="bi bi-calendar3"></i> {{ exam.exam_date }}</small>
+                Exam #{{ exam.exam_id }} &bull; <span class="fw-bold font-monospace">{{ exam.subject_code }}</span> ({{ exam.subject_name }}) &bull;
+                <span class="badge bg-secondary">{{ exam.exam_type }}</span>
+                {% if exam.status == 'Scheduled' %}
+                    <span class="badge bg-info text-dark">Scheduled</span>
+                {% elif exam.status == 'Ongoing' %}
+                    <span class="badge bg-warning text-dark">Ongoing</span>
+                {% elif exam.status == 'Completed' %}
+                    <span class="badge bg-success">Completed</span>
+                {% else %}
+                    <span class="badge bg-danger">Cancelled</span>
+                {% endif %}
             </p>
         </div>
         <div>
             <form action="{{ url_for('admin_exams.allocate_seats', exam_id=exam.exam_id) }}" method="POST" class="d-inline">
-                <button type="submit" class="btn btn-primary" {% if exam.status == 'Completed' or exam.status == 'Cancelled' %}disabled{% endif %}>
-                    <i class="bi bi-magic me-1"></i> Auto-Allocate Unassigned
+                <button type="submit" class="btn btn-primary shadow-sm"
+                        {% if exam.status == 'Completed' or exam.status == 'Cancelled' or configured_seats == 0 or unassigned_count == 0 %}disabled{% endif %}>
+                    <i class="bi bi-magic me-1"></i> Auto-Allocate Unassigned ({{ unassigned_count }})
                 </button>
             </form>
         </div>
     </div>
 </div>
 
+<!-- Architecture & Workflow Distinction Banner -->
+<div class="card bg-card border-0 mb-4 shadow-sm">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6 border-end border-secondary border-opacity-25">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="fs-3 text-info"><i class="bi bi-door-open-fill"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-1 text-light">1. Physical Room Seats (Infrastructure)</h6>
+                        <p class="text-muted small mb-1">
+                            Physical desks/seats belong to the room (<span class="font-monospace text-info">ExamRoom &rarr; Seat</span>). 
+                            Configured via grid rows &times; columns under <strong>Exam Rooms</strong>.
+                        </p>
+                        <span class="badge bg-dark text-info border border-info border-opacity-25">
+                            Room: {{ exam.room_name }} ({{ configured_seats }} seats generated)
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="fs-3 text-success"><i class="bi bi-person-check-fill"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-1 text-light">2. Student Allocation (Exam Session)</h6>
+                        <p class="text-muted small mb-1">
+                            Assigns students registered for this specific examination (<span class="font-monospace text-success">ExamRegistration &rarr; SeatAllocation</span>) to available physical desks in this room.
+                        </p>
+                        <span class="badge bg-dark text-success border border-success border-opacity-25">
+                            Status: {{ allocated_count }} / {{ registered_count }} registered students allocated
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Exam & Capacity Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card bg-card border-0 p-3 h-100">
+            <small class="text-muted text-uppercase fw-semibold">Subject & Exam</small>
+            <div class="fw-bold fs-5 mt-1">{{ exam.subject_code }}</div>
+            <div class="text-muted small text-truncate" title="{{ exam.subject_name }}">{{ exam.subject_name }}</div>
+            <div class="small text-secondary mt-1"><i class="bi bi-calendar3 me-1"></i> {{ exam.exam_date }} ({{ exam.start_time }} - {{ exam.end_time }})</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card bg-card border-0 p-3 h-100">
+            <small class="text-muted text-uppercase fw-semibold">Assigned Room</small>
+            <div class="fw-bold fs-5 mt-1 text-info">{{ exam.room_name }}</div>
+            <div class="text-muted small">Invigilator: {{ exam.invigilator_name }}</div>
+            <div class="small text-secondary mt-1"><i class="bi bi-info-circle me-1"></i> Term: {{ exam.semester }} {{ exam.academic_year }}</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card bg-card border-0 p-3 h-100">
+            <small class="text-muted text-uppercase fw-semibold">Registered Students</small>
+            <div class="d-flex align-items-baseline gap-2 mt-1">
+                <span class="fw-bold fs-5">{{ registered_count }}</span>
+                {% if unassigned_count > 0 %}
+                    <span class="badge bg-warning text-dark">{{ unassigned_count }} unassigned</span>
+                {% else %}
+                    <span class="badge bg-success">All assigned</span>
+                {% endif %}
+            </div>
+            <div class="text-muted small mt-1">
+                <a href="{{ url_for('admin_registrations.index', exam_id=exam.exam_id) }}" class="text-info text-decoration-none">
+                    <i class="bi bi-box-arrow-up-right me-1"></i> View registration list
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card bg-card border-0 p-3 h-100">
+            <small class="text-muted text-uppercase fw-semibold">Physical Seats in Room</small>
+            <div class="d-flex align-items-baseline gap-2 mt-1">
+                <span class="fw-bold fs-5 text-light">{{ configured_seats }}</span>
+                <span class="badge bg-secondary">{{ available_seats }} available</span>
+            </div>
+            <div class="text-muted small mt-1">
+                Allocated: <strong class="text-success">{{ allocated_count }}</strong> &bull; Free: <strong class="text-light">{{ available_seats }}</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if configured_seats == 0 %}
+<div class="alert alert-warning border-0 d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+    <div>
+        <i class="bi bi-exclamation-triangle-fill fs-5 me-2"></i>
+        <strong>No physical seats configured:</strong> Physical seats have not yet been generated for room <strong>{{ exam.room_name }}</strong>. Generate seats under Exam Rooms before running student allocation.
+    </div>
+    <a href="{{ url_for('admin_rooms.index') }}" class="btn btn-warning text-dark btn-sm fw-semibold">
+        <i class="bi bi-door-open me-1"></i> Go to Exam Rooms to Generate Seats
+    </a>
+</div>
+{% elif registered_count == 0 %}
+<div class="alert alert-info border-0 d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+    <div>
+        <i class="bi bi-info-circle-fill fs-5 me-2"></i>
+        <strong>No registered students:</strong> There are currently no students registered for this exam session. Register students before allocating seats.
+    </div>
+    <a href="{{ url_for('admin_registrations.index', exam_id=exam.exam_id) }}" class="btn btn-info text-dark btn-sm fw-semibold">
+        <i class="bi bi-person-plus me-1"></i> Register Students
+    </a>
+</div>
+{% elif unassigned_count > available_seats %}
+<div class="alert alert-danger border-0 mb-4">
+    <i class="bi bi-exclamation-octagon-fill fs-5 me-2"></i>
+    <strong>Capacity Overflow Warning:</strong> {{ unassigned_count }} registered students are awaiting allocation, but only {{ available_seats }} unallocated physical seats remain in {{ exam.room_name }}. Running auto-allocation will fail unless additional seats or a larger room is assigned.
+</div>
+{% endif %}
+
 <div class="card bg-card border-0 mb-4">
     <div class="card-body">
-        <h5 class="card-title text-accent mb-4"><i class="bi bi-layout-text-window-reverse me-2"></i> Room Layout</h5>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+            <h5 class="card-title text-accent mb-0"><i class="bi bi-layout-text-window-reverse me-2"></i> Room Layout & Seating Grid</h5>
+            <div class="d-flex gap-3 align-items-center small text-muted">
+                <span><span class="badge bg-success me-1">&nbsp;</span> Allocated</span>
+                <span><span class="badge bg-dark border border-secondary me-1">&nbsp;</span> Available</span>
+            </div>
+        </div>
         
         <div class="d-flex justify-content-center mb-4">
-            <div class="bg-secondary text-center py-2 rounded shadow-sm w-75 fw-bold letter-spacing-1">
-                WHITEBOARD / FRONT OF ROOM
+            <div class="bg-secondary bg-opacity-25 border border-secondary text-center py-2 rounded shadow-sm w-75 fw-bold letter-spacing-1 text-light">
+                <i class="bi bi-chalkboard me-2"></i> WHITEBOARD / FRONT OF ROOM
             </div>
         </div>
 
@@ -40,26 +181,28 @@
             {% for seat in chart_data %}
                 {% if seat.row_no != current_row %}
                     {% if current_row != 0 %}</div>{% endif %}
-                    <div class="d-flex justify-content-center gap-3 mb-3">
+                    <div class="d-flex justify-content-center gap-3 mb-3 flex-wrap">
                     {% set current_row = seat.row_no %}
                 {% endif %}
                 
-                <div class="card text-center {% if seat.allocation_status == 'Allocated' %}bg-success text-white{% else %}bg-dark text-light border-secondary{% endif %}" style="width: 120px;">
-                    <div class="card-header py-1 {% if seat.allocation_status == 'Allocated' %}bg-success text-white border-white{% else %}border-secondary{% endif %}">
+                <div class="card text-center {% if seat.allocation_status in ['Allocated', 'Reallocated'] %}bg-success text-white border-success{% else %}bg-dark text-light border-secondary{% endif %}" style="width: 125px;">
+                    <div class="card-header py-1 {% if seat.allocation_status in ['Allocated', 'Reallocated'] %}bg-success text-white border-white border-opacity-25{% else %}border-secondary border-opacity-50{% endif %}">
                         <strong>{{ seat.seat_number }}</strong>
                     </div>
-                    <div class="card-body p-2 d-flex flex-column justify-content-center align-items-center" style="min-height: 80px;">
-                        {% if seat.allocation_status == 'Allocated' %}
-                            <small class="fw-bold text-truncate w-100" title="{{ seat.registration_no }}">{{ seat.registration_no }}</small>
+                    <div class="card-body p-2 d-flex flex-column justify-content-center align-items-center" style="min-height: 85px;">
+                        {% if seat.allocation_status in ['Allocated', 'Reallocated'] %}
+                            <small class="fw-bold font-monospace text-truncate w-100" title="{{ seat.registration_no }}">{{ seat.registration_no }}</small>
                             <small class="text-truncate w-100 d-block" style="font-size: 0.75rem;" title="{{ seat.name }}">{{ seat.name }}</small>
                             
                             {% if exam.status != 'Completed' and exam.status != 'Cancelled' %}
                             <form action="{{ url_for('admin_exams.cancel_allocation', exam_id=exam.exam_id, allocation_id=seat.allocation_id) }}" method="POST" class="mt-2 w-100">
-                                <button type="submit" class="btn btn-sm btn-danger py-0 px-1 w-100" style="font-size: 0.7rem;">Cancel</button>
+                                <button type="submit" class="btn btn-sm btn-danger py-0 px-1 w-100" style="font-size: 0.7rem;" title="Cancel this seat allocation">
+                                    Cancel
+                                </button>
                             </form>
                             {% endif %}
                         {% else %}
-                            <small class="text-muted fst-italic">Empty</small>
+                            <small class="text-muted fst-italic">Available</small>
                         {% endif %}
                     </div>
                 </div>
@@ -68,10 +211,16 @@
         </div>
         
         {% if not chart_data %}
-        <div class="alert alert-warning text-center">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i> No seats have been generated for this room yet. Go to Exam Rooms to generate seats.
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-grid-3x3 fs-1 d-block mb-3 text-secondary"></i>
+            <h5>No Physical Seats Found for {{ exam.room_name }}</h5>
+            <p class="small text-muted mb-3">Rooms require a configured physical seat grid before student allocation can begin.</p>
+            <a href="{{ url_for('admin_rooms.index') }}" class="btn btn-outline-info btn-sm">
+                <i class="bi bi-door-open me-1"></i> Go to Exam Rooms
+            </a>
         </div>
         {% endif %}
     </div>
 </div>
 {% endblock %}
+

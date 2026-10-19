@@ -61,11 +61,14 @@
                         <td class="text-center">
                             <span class="badge rounded-pill bg-light text-dark fs-6">{{ exam.registered_students }}</span>
                         </td>
-                        <td class="text-end">
-                            <a href="{{ url_for('admin_registrations.index', exam_id=exam.exam_id) }}" class="btn btn-sm btn-outline-info me-1" title="Manage Registrations">
+                        <td class="text-end text-nowrap">
+                            <a href="{{ url_for('admin_exams.seating_chart', exam_id=exam.exam_id) }}" class="btn btn-sm btn-outline-primary me-1" title="Seating Chart / Allocate Seats" aria-label="Seating Chart and Allocate Seats for {{ exam.subject_code }}">
+                                <i class="bi bi-grid-3x3 me-1"></i> Seating Chart
+                            </a>
+                            <a href="{{ url_for('admin_registrations.index', exam_id=exam.exam_id) }}" class="btn btn-sm btn-outline-info me-1" title="Manage Registrations" aria-label="Manage Registrations">
                                 <i class="bi bi-people"></i>
                             </a>
-                            <a href="{{ url_for('admin_exams.edit', exam_id=exam.exam_id) }}" class="btn btn-sm btn-outline-light me-1" title="Edit Exam">
+                            <a href="{{ url_for('admin_exams.edit', exam_id=exam.exam_id) }}" class="btn btn-sm btn-outline-light me-1" title="Edit Exam" aria-label="Edit Exam">
                                 <i class="bi bi-pencil"></i>
                             </a>
                             {% if exam.status != 'Cancelled' %}
@@ -73,7 +76,8 @@
                                 <button type="button" class="btn btn-sm btn-outline-danger" title="Cancel Exam"
                                         data-confirm="Are you sure you want to cancel the scheduled exam for {{ exam.subject_code }} ({{ exam.exam_type }}) on {{ exam.exam_date }}? This will halt student allocations."
                                         data-confirm-title="Cancel Exam"
-                                        data-confirm-btn="Cancel Exam">
+                                        data-confirm-btn="Cancel Exam"
+                                        aria-label="Cancel Exam">
                                     <i class="bi bi-x-circle"></i>
                                 </button>
                             </form>

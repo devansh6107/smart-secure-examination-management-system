@@ -64,12 +64,21 @@ def allocate_seats_for_exam(exam_id):
         cursor = conn.cursor(dictionary=True)
         conn.start_transaction()
         
+        # Check exam exists and is active
+        cursor.execute("SELECT room_id, status FROM Exam WHERE exam_id = %s", (exam_id,))
+        room = cursor.fetchone()
+        if not room:
+            raise Exception("Exam not found or has no room assigned.")
+        if room.get('status') in ('Cancelled', 'Completed'):
+            raise Exception(f"Cannot allocate seats for an exam that is {room['status']}.")
+        room_id = room['room_id']
+
         # SUBQUERY EXAMPLE 1: Fetch students registered but not allocated yet
         cursor.execute('''
             SELECT student_id FROM ExamRegistration 
             WHERE exam_id = %s AND registration_status = 'Registered'
             AND student_id NOT IN (
-                SELECT student_id FROM SeatAllocation WHERE exam_id = %s AND allocation_status = 'Allocated'
+                SELECT student_id FROM SeatAllocation WHERE exam_id = %s AND allocation_status IN ('Allocated', 'Reallocated')
             )
             ORDER BY student_id
         ''', (exam_id, exam_id))
@@ -78,20 +87,13 @@ def allocate_seats_for_exam(exam_id):
         if not students_to_allocate:
             conn.rollback()
             return 0 # No one to allocate
-            
-        # Get room for exam
-        cursor.execute("SELECT room_id FROM Exam WHERE exam_id = %s", (exam_id,))
-        room = cursor.fetchone()
-        if not room:
-            raise Exception("Exam not found or has no room assigned.")
-        room_id = room['room_id']
         
         # Fetch available seats (not allocated for this exam)
         cursor.execute('''
             SELECT seat_id FROM Seat
             WHERE room_id = %s
             AND seat_id NOT IN (
-                SELECT seat_id FROM SeatAllocation WHERE exam_id = %s AND allocation_status = 'Allocated'
+                SELECT seat_id FROM SeatAllocation WHERE exam_id = %s AND allocation_status IN ('Allocated', 'Reallocated')
             )
             ORDER BY row_no, column_no
         ''', (room_id, exam_id))
@@ -109,7 +111,8 @@ def allocate_seats_for_exam(exam_id):
             
             # Double check validation (seat belongs to exam room)
             cursor.execute("SELECT room_id FROM Seat WHERE seat_id = %s", (seat_id,))
-            if cursor.fetchone()['room_id'] != room_id:
+            seat_info = cursor.fetchone()
+            if not seat_info or seat_info['room_id'] != room_id:
                 raise Exception("Validation Error: Seat does not belong to the exam room.")
                 
             cursor.execute(
@@ -137,7 +140,7 @@ def get_seating_chart(exam_id):
                    st.name, st.registration_no, sa.allocation_status
             FROM Seat s
             JOIN Exam e ON s.room_id = e.room_id
-            LEFT JOIN SeatAllocation sa ON s.seat_id = sa.seat_id AND sa.exam_id = e.exam_id
+            LEFT JOIN SeatAllocation sa ON s.seat_id = sa.seat_id AND sa.exam_id = e.exam_id AND sa.allocation_status IN ('Allocated', 'Reallocated')
             LEFT JOIN Student st ON sa.student_id = st.student_id
             WHERE e.exam_id = %s
             ORDER BY s.row_no, s.column_no

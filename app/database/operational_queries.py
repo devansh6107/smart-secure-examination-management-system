@@ -30,9 +30,8 @@ def generate_seats_for_room(room_id, rows, cols):
         
         # Generate new seats
         for r in range(1, rows + 1):
-            row_letter = chr(64 + r) if r <= 26 else f"R{r}" # A, B, C...
             for c in range(1, cols + 1):
-                seat_num = f"{row_letter}{c}"
+                seat_num = f"R{r}C{c}"
                 cursor.execute(
                     "INSERT INTO Seat (room_id, seat_number, row_no, column_no) VALUES (%s, %s, %s, %s)",
                     (room_id, seat_num, r, c)

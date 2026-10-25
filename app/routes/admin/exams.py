@@ -156,6 +156,7 @@ def seating_chart(exam_id):
     registered_count = exam.get('registered_students', 0)
     unassigned_count = max(0, registered_count - allocated_count)
     available_seats = max(0, configured_seats - allocated_count)
+    num_columns = max((s.get('column_no', 1) for s in chart_data), default=1) if chart_data else 1
     
     return render_template(
         'admin/exams/seating_chart.html',
@@ -165,7 +166,8 @@ def seating_chart(exam_id):
         allocated_count=allocated_count,
         registered_count=registered_count,
         unassigned_count=unassigned_count,
-        available_seats=available_seats
+        available_seats=available_seats,
+        num_columns=num_columns
     )
 
 @exams_bp.route('/<int:exam_id>/cancel_allocation/<int:allocation_id>', methods=['POST'])

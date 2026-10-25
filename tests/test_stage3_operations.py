@@ -33,10 +33,10 @@ class TestOperations:
         
         assert len(seats) == 4
         seat_numbers = [s['seat_number'] for s in seats]
-        assert 'A1' in seat_numbers
-        assert 'A2' in seat_numbers
-        assert 'B1' in seat_numbers
-        assert 'B2' in seat_numbers
+        assert 'R1C1' in seat_numbers
+        assert 'R1C2' in seat_numbers
+        assert 'R2C1' in seat_numbers
+        assert 'R2C2' in seat_numbers
 
     def test_allocation_capacity_overflow(self):
         from app.database.operational_queries import allocate_seats_for_exam, generate_seats_for_room

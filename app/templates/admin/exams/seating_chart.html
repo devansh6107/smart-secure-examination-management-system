@@ -176,26 +176,22 @@
             </div>
         </div>
 
-        <div class="seating-grid">
-            {% set current_row = 0 %}
-            {% for seat in chart_data %}
-                {% if seat.row_no != current_row %}
-                    {% if current_row != 0 %}</div>{% endif %}
-                    <div class="d-flex justify-content-center gap-3 mb-3 flex-wrap">
-                    {% set current_row = seat.row_no %}
-                {% endif %}
-                
-                <div class="card text-center {% if seat.allocation_status in ['Allocated', 'Reallocated'] %}bg-success text-white border-success{% else %}bg-dark text-light border-secondary{% endif %}" style="width: 125px;">
-                    <div class="card-header py-1 {% if seat.allocation_status in ['Allocated', 'Reallocated'] %}bg-success text-white border-white border-opacity-25{% else %}border-secondary border-opacity-50{% endif %}">
+        <div class="seating-grid" style="--grid-cols: {{ num_columns }};">
+            {% for row_no, seats_in_row in chart_data | groupby('row_no') %}
+            <div class="seating-row">
+                <div class="seating-row-label">R{{ row_no }}</div>
+                {% for seat in seats_in_row | sort(attribute='column_no') %}
+                <div class="seat-card {% if seat.allocation_status in ['Allocated', 'Reallocated'] %}seat-allocated{% else %}seat-available{% endif %}">
+                    <div class="seat-card-header">
                         <strong>{{ seat.seat_number }}</strong>
                     </div>
-                    <div class="card-body p-2 d-flex flex-column justify-content-center align-items-center" style="min-height: 85px;">
+                    <div class="seat-card-body">
                         {% if seat.allocation_status in ['Allocated', 'Reallocated'] %}
                             <small class="fw-bold font-monospace text-truncate w-100" title="{{ seat.registration_no }}">{{ seat.registration_no }}</small>
-                            <small class="text-truncate w-100 d-block" style="font-size: 0.75rem;" title="{{ seat.name }}">{{ seat.name }}</small>
+                            <small class="seat-student-name text-truncate w-100 d-block" title="{{ seat.name }}">{{ seat.name }}</small>
                             
                             {% if exam.status != 'Completed' and exam.status != 'Cancelled' %}
-                            <form action="{{ url_for('admin_exams.cancel_allocation', exam_id=exam.exam_id, allocation_id=seat.allocation_id) }}" method="POST" class="mt-2 w-100">
+                            <form action="{{ url_for('admin_exams.cancel_allocation', exam_id=exam.exam_id, allocation_id=seat.allocation_id) }}" method="POST" class="mt-1 w-100">
                                 <button type="submit" class="btn btn-sm btn-danger py-0 px-1 w-100" style="font-size: 0.7rem;" title="Cancel this seat allocation">
                                     Cancel
                                 </button>
@@ -206,8 +202,9 @@
                         {% endif %}
                     </div>
                 </div>
+                {% endfor %}
+            </div>
             {% endfor %}
-            {% if current_row != 0 %}</div>{% endif %}
         </div>
         
         {% if not chart_data %}
